@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "randomstatsmodels"
+authors:
+  - name: Jacob
+date-released: 2025-08-26
+version: 0.1.0

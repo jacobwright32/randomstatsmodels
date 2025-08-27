@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "randomstatsmodels"
+version = "0.1.0"
+description = "Random stats utilities"
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"  # SPDX string to avoid deprecation warnings
+authors = [{ name = "Jacob" }]
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["randomstatsmodels*"]
