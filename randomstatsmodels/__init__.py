@@ -1,39 +1,45 @@
-# randomstatsmodels/__init__.py
-# This makes the folder a Python package.
+__version__ = "1.0.0"
 
-from .metrics.metrics import mae, mape, smape, rmse
-from .models.models import (
-    AutoHybridForecaster,
-    AutoKNN,
-    AutoMELD,
-    AutoNEO,
-    AutoPALF,
-    AutoThetaAR,
-    AutoPolymath,
-    AutoSeasonalAR,
-    AutoFourier,
-    AutoRollingMedian,
-    AutoTrimmedMean,
-    AutoWindow,
-    AutoRankInsertion,
-)
 from .benchmarking.benchmarking import benchmark_model, benchmark_models
+from .metrics import mae, rmse, mape, smape
+from .models import (
+    HybridForecastNet,
+    AutoHybridForecaster,
+    MELDForecaster,
+    AutoMELD,
+    KNNForecaster,
+    AutoKNN,
+    PALF,
+    AutoPALF,
+    NEOForecaster,
+    AutoNEO,
+    AutoThetaAR,
+    PolymathForecaster,
+    AutoPolymath,
+    FourierForecaster,
+    AutoFourier,
+)
 
-__version__ = "0.1.0"
 __all__ = [
-    "__version__",
     "mae",
+    "rmse",
     "mape",
     "smape",
-    "rmse",
+    "HybridForecastNet",
     "AutoHybridForecaster",
-    "AutoKNN",
+    "MELDForecaster",
     "AutoMELD",
-    "AutoNEO",
+    "KNNForecaster",
+    "AutoKNN",
+    "PALF",
     "AutoPALF",
+    "NEOForecaster",
+    "AutoNEO",
     "AutoThetaAR",
+    "PolymathForecaster",
     "AutoPolymath",
-    "AutoSeasonalAR",
-    "benchmark_models",
+    "FourierForecaster",
+    "AutoFourier",
     "benchmark_model",
+    "benchmark_models",
 ]

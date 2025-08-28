@@ -1,17 +1,51 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "randomstatsmodels"
 version = "0.1.0"
-description = "Random stats utilities"
+description = "Tools for benchmarking, metrics, and models."
 readme = "README.md"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Jacob Wright" }
+]
 requires-python = ">=3.9"
-license = "MIT"  # SPDX string to avoid deprecation warnings
-authors = [{ name = "Jacob" }]
-dependencies = []
+dependencies = [
+  "numpy>=1.24"
+]
+
+keywords = [
+  "statistics",
+  "metrics",
+  "machine-learning",
+  "forecasting",
+  "evaluation",
+  "error-metrics",
+  "model-selection",
+  "time-series",
+  "analysis"
+]
+
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Mathematics",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Operating System :: OS Independent"
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["randomstatsmodels*"]
+
+[tool.setuptools.package-data]
+# if you ever add CSVs or py.typed, include them here
+randomstatsmodels = []
