@@ -1,45 +1,135 @@
 # randomstatsmodels
 
-A tiny, modern Python package skeleton for experimenting with forecasting and statistics utilities.
+Lightweight utilities for benchmarking, forecasting, and statistical modeling — with simple `Auto*` model wrappers that tune hyperparameters for you.
 
-## Quick start
+## Installation
+
 ```bash
-# from the project root
-python -m venv .venv && source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -e ".[dev]"  # install in editable mode with dev extras
-randomstatsmodels --version
+pip install --upgrade randomstatsmodels
 ```
 
-## Usage
+Requires: Python 3.9+ and NumPy.
+
+---
+
+## Quick Start
+
 ```python
-from randomstatsmodels.metrics import mae, rmse
+from randomstatsmodels import AutoNEO, AutoFourier, AutoKNN, AutoPolymath, AutoThetaAR
+import numpy as np
 
-y_true = [1, 2, 3]
-y_pred = [1.1, 1.9, 3.2]
-print(mae(y_true, y_pred))
+# Toy data: sine wave + noise
+rng = np.random.default_rng(42)
+t = np.arange(200)
+y = np.sin(2*np.pi*t/24) + 0.1*rng.normal(size=t.size)
+
+h = 12  # forecast horizon
+
+model = AutoNEO().fit(y)
+yhat = model.predict(h)
+print("Forecast:", yhat[:5])
 ```
 
-## Testing
+---
+
+## Models
+
+Each `Auto*` class:
+- accepts a **parameter grid** (or uses sensible defaults),
+- fits/evaluates candidates using a chosen metric,
+- exposes a unified API: `.fit(y[, X])` and `.predict(h)`.
+
+### AutoNEO
+
+```python
+from randomstatsmodels import AutoNEO
+
+neo = AutoNEO(
+    param_grid={"n_components": [8, 16, 32]},
+    metric="mae",
+)
+neo.fit(y)
+print("Best params:", neo.best_params_)
+print("Prediction:", neo.predict(h))
+```
+
+### AutoFourier
+
+```python
+from randomstatsmodels import AutoFourier
+
+fourier = AutoFourier(
+    param_grid={"season_length": [12, 24], "n_terms": [3, 5]},
+    metric="smape",
+)
+fourier.fit(y)
+print("Prediction:", fourier.predict(h))
+```
+
+### AutoKNN
+
+```python
+from randomstatsmodels import AutoKNN
+
+knn = AutoKNN(
+    param_grid={"k": [3, 5, 7], "window": [12, 24]},
+    metric="rmse",
+)
+knn.fit(y)
+print("Prediction:", knn.predict(h))
+```
+
+### AutoPolymath
+
+```python
+from randomstatsmodels import AutoPolymath
+
+poly = AutoPolymath(
+    param_grid={"degree": [2, 3], "ridge": [0.0, 0.1]},
+    metric="mae",
+)
+poly.fit(y)
+print("Prediction:", poly.predict(h))
+```
+
+### AutoThetaAR
+
+```python
+from randomstatsmodels import AutoThetaAR
+
+theta = AutoThetaAR(
+    param_grid={"theta": [0.5, 1.0, 2.0]},
+    metric="mape",
+)
+theta.fit(y)
+print("Prediction:", theta.predict(h))
+```
+
+---
+
+## Metrics
+
+Available out of the box:
+
+```python
+from randomstatsmodels.metrics import mae, rmse, mape, smape
+```
+
+---
+
+## Development
+
+Clone the repo and install in editable mode with dev extras:
+
 ```bash
+git clone https://github.com/jacobwright32/randomstatsmodels.git
+cd randomstatsmodels
+pip install -e ".[dev]"
 pytest -q
 ```
 
-## Using your models
-Put your custom models in `randomstatsmodels/user_models.py` (we copied your uploaded file there).
+---
 
-### Python API
-```python
-from randomstatsmodels.api import predict
-# Model ref can be 'randomstatsmodels.user_models:MyModel' or an object/callable
-yhat = predict("randomstatsmodels.user_models:MyModel", X_dataframe)
-```
+## License
 
-### CLI
-```bash
-randomstatsmodels predict \        --model randomstatsmodels.user_models:MyModel \        --input data.csv \        --output preds.csv
-```
-
-The adapter accepts:
-- Objects with `.predict(X, **kwargs)`
-- Callables like `def f(X): ...`
-- Classes that can be instantiated without args and have `.predict(X)`
+MIT © 2025 Jacob Wright
