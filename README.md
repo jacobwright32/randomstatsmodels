@@ -117,19 +117,6 @@ from randomstatsmodels.metrics import mae, rmse, mape, smape
 
 ---
 
-## Development
-
-Clone the repo and install in editable mode with dev extras:
-
-```bash
-git clone https://github.com/jacobwright32/randomstatsmodels.git
-cd randomstatsmodels
-pip install -e ".[dev]"
-pytest -q
-```
-
----
-
 ## License
 
 MIT © 2025 Jacob Wright
