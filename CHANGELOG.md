@@ -19,3 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Move forecasting models into seperate files.
 - Add example within README.
+
+## [1.0.1] - 2025-08-28
+### Fix
+- AutoNeo Prediction
+
+## [1.0.2] - 2025-08-28
+### Added
+- update readme to include medium article
