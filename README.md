@@ -5,7 +5,7 @@ Lightweight utilities for benchmarking, forecasting, and statistical modeling â€
 ## Installation
 
 ```bash
-pip install --upgrade randomstatsmodels
+pip install randomstatsmodels
 ```
 
 Requires: Python 3.9+ and NumPy.
