@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "randomstatsmodels"
-version = "1.0.2"
+version = "1.0.3"
 description = "Tools for benchmarking, metrics, and models."
 readme = "README.md"
 license = { file = "LICENSE" }
