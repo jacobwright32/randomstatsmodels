@@ -251,3 +251,19 @@ class AutoNEO:
         self.model_ = final
         self.best_ = dict(config=best_conf, val_score=best_score)
         return self
+    
+    def predict(self, h: int):
+        """
+        Generate forecasts using the best-fitted model.
+
+        Parameters
+        ----------
+        h : int
+            Forecast horizon, i.e., number of future steps to predict.
+
+        Returns
+        -------
+        y_pred : ndarray of shape (h,)
+            Forecasted values.
+        """
+        return self.model_.predict(h)
