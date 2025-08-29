@@ -87,10 +87,7 @@ class PALF:
         return np.exp(-gaps / max(self.decay_param, 1e-9))
 
     def _objective_factory(
-        self,
-        anchors: np.ndarray,
-        weights: np.ndarray,
-        level_anchor: Optional[float]
+        self, anchors: np.ndarray, weights: np.ndarray, level_anchor: Optional[float]
     ) -> Callable[[float], float]:
         """
         Create an objective function for penalized aggregation.
