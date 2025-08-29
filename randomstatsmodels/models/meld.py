@@ -1,5 +1,9 @@
-from typing import Optional, Tuple, Dict, Iterable
+from typing import Optional, Tuple, Dict, Iterable, Union
 import numpy as np
+
+from ..metrics import mae, rmse
+
+ArrayLike = Union[np.ndarray, Iterable[float]]
 
 
 # ===================== MELDForecaster =====================
@@ -13,6 +17,45 @@ class MELDForecaster:
       - Linear dynamics in feature space (ridge-regularized regression).
       - Instance-based analog correction (kNN in lifted space), blended adaptively
         by a confidence weight from neighbor distances.
+
+    Parameters
+    ----------
+    lags : int, default=12
+        Number of recent points used at each scale to define the state.
+    scales : tuple of int, default=(1, 3, 7)
+        Causal moving-average windows (in time steps) to create multiscale views.
+        Must include ``1`` to keep the raw scale.
+    rff_features : int, default=128
+        Number of random Fourier features (RBF kernel approximation).
+    lengthscale : float, default=3.0
+        RBF kernel lengthscale for RFF. Larger values → smoother features.
+    ridge : float, default=1e-2
+        Ridge regularization strength for linear regression in feature space.
+    knn : int, default=5
+        Number of nearest analogs (in lifted feature space) for residual correction.
+        Set to 0 to disable analog blending.
+    blend_strength : float, default=1.0
+        Controls how strongly analogs influence forecasts. Larger values
+        increase analog weight when nearest neighbor distances are small.
+    random_state : int or None, default=123
+        Seed for reproducibility of random Fourier feature sampling.
+
+    Attributes
+    ----------
+    _y : ndarray of shape (n_samples,) or None
+        Training time series.
+    _beta : ndarray of shape (n_features,) or None
+        Learned regression coefficients.
+    _W : ndarray of shape (rff_features, dim_raw) or None
+        Random Fourier feature weight matrix.
+    _b : ndarray of shape (rff_features,) or None
+        Random Fourier feature phase vector.
+    _train_Z : ndarray of shape (n_samples, rff_features) or None
+        Lifted training features used for analog search.
+    _y_next : ndarray of shape (n_samples,) or None
+        Next-step targets for analog correction.
+    _sigma_d : float
+        Typical nearest-neighbor distance in lifted space, for analog confidence scaling.
     """
 
     def __init__(
@@ -25,49 +68,7 @@ class MELDForecaster:
         knn: int = 5,
         blend_strength: float = 1.0,
         random_state: Optional[int] = 123,
-    ):
-        """
-        Initialize a MELDForecaster.
-
-        Parameters
-        ----------
-        lags : int, default=12
-            Number of recent points used at each scale to define the state.
-        scales : tuple of int, default=(1, 3, 7)
-            Causal moving-average windows (in time steps) to create multiscale views.
-            Must include ``1`` to keep the raw scale.
-        rff_features : int, default=128
-            Number of random Fourier features (RBF kernel approximation).
-        lengthscale : float, default=3.0
-            RBF kernel lengthscale for RFF. Larger values → smoother features.
-        ridge : float, default=1e-2
-            Ridge regularization strength for linear regression in feature space.
-        knn : int, default=5
-            Number of nearest analogs (in lifted feature space) for residual correction.
-            Set to 0 to disable analog blending.
-        blend_strength : float, default=1.0
-            Controls how strongly analogs influence forecasts. Larger values
-            increase analog weight when nearest neighbor distances are small.
-        random_state : int or None, default=123
-            Seed for reproducibility of random Fourier feature sampling.
-
-        Attributes
-        ----------
-        _y : ndarray of shape (n_samples,), optional
-            Training time series.
-        _beta : ndarray of shape (n_features,), optional
-            Learned regression coefficients.
-        _W : ndarray of shape (rff_features, dim_raw), optional
-            Random Fourier feature weight matrix.
-        _b : ndarray of shape (rff_features,), optional
-            Random Fourier feature phase vector.
-        _train_Z : ndarray of shape (n_samples, rff_features), optional
-            Lifted training features used for analog search.
-        _y_next : ndarray of shape (n_samples,), optional
-            Next-step targets for analog correction.
-        _sigma_d : float
-            Typical nearest-neighbor distance in lifted space, for analog confidence scaling.
-        """
+    ) -> None:
         self.lags = int(lags)
         self.scales = tuple(int(s) for s in scales)
         if 1 not in self.scales:
@@ -174,13 +175,13 @@ class MELDForecaster:
 
     # ---------- fitting ----------
 
-    def fit(self, y: np.ndarray):
+    def fit(self, y: ArrayLike) -> "MELDForecaster":
         """
         Fit the MELD model to a univariate time series.
 
         Parameters
         ----------
-        y : ndarray of shape (n_samples,)
+        y : array-like of shape (n_samples,)
             Training time series.
 
         Returns
@@ -271,7 +272,7 @@ class MELDForecaster:
 
     # ---------- public API ----------
 
-    def predict(self, h: int, start_values: Optional[np.ndarray] = None) -> np.ndarray:
+    def predict(self, h: int, start_values: Optional[ArrayLike] = None) -> np.ndarray:
         """
         Generate iterative forecasts for a given horizon.
 
@@ -279,7 +280,7 @@ class MELDForecaster:
         ----------
         h : int
             Number of forecast steps.
-        start_values : ndarray of shape (>=lags,), optional
+        start_values : array-like of shape (>=lags,), optional
             Starting history to condition forecasts. If None, uses training series.
 
         Returns
@@ -318,10 +319,38 @@ class MELDForecaster:
 # ================= AutoMELD =================
 class AutoMELD:
     """
-    Validation-based tuner for MELDForecaster.
+    Validation-based tuner for :class:`MELDForecaster`.
 
     Performs grid search over hyperparameter combinations and selects the
     configuration with the best validation score.
+
+    Parameters
+    ----------
+    lags_grid : iterable of int, default=(8, 12, 16)
+        Candidate lag values.
+    scales_grid : iterable of tuple of int, default=((1, 3, 7), (1, 2, 4, 8))
+        Candidate multiscale embedding sets.
+    rff_features_grid : iterable of int, default=(64, 128)
+        Candidate numbers of random Fourier features.
+    lengthscales : iterable of float, default=(2.0, 4.0)
+        Candidate RBF kernel lengthscales.
+    ridges : iterable of float, default=(1e-3, 1e-2)
+        Candidate ridge penalties.
+    knns : iterable of int, default=(0, 5)
+        Candidate nearest-neighbor counts for analog correction.
+    blend_strengths : iterable of float, default=(0.8, 1.5)
+        Candidate blend strengths for analog correction.
+    metric : {"mae", "rmse"}, default="mae"
+        Validation scoring metric.
+    random_state : int or None, default=123
+        Random seed for reproducibility.
+
+    Attributes
+    ----------
+    model_ : MELDForecaster or None
+        Best fitted model after tuning.
+    best_ : dict or None
+        Dictionary with best configuration and validation score.
 
     Examples
     --------
@@ -340,38 +369,7 @@ class AutoMELD:
         blend_strengths: Iterable[float] = (0.8, 1.5),
         metric: str = "mae",
         random_state: Optional[int] = 123,
-    ):
-        """
-        Initialize AutoMELD grid tuner.
-
-        Parameters
-        ----------
-        lags_grid : iterable of int, default=(8, 12, 16)
-            Candidate lag values.
-        scales_grid : iterable of tuple of int, default=((1, 3, 7), (1, 2, 4, 8))
-            Candidate multiscale embedding sets.
-        rff_features_grid : iterable of int, default=(64, 128)
-            Candidate numbers of random Fourier features.
-        lengthscales : iterable of float, default=(2.0, 4.0)
-            Candidate RBF kernel lengthscales.
-        ridges : iterable of float, default=(1e-3, 1e-2)
-            Candidate ridge penalties.
-        knns : iterable of int, default=(0, 5)
-            Candidate nearest-neighbor counts for analog correction.
-        blend_strengths : iterable of float, default=(0.8, 1.5)
-            Candidate blend strengths for analog correction.
-        metric : {"mae", "rmse"}, default="mae"
-            Validation scoring metric.
-        random_state : int or None, default=123
-            Random seed for reproducibility.
-
-        Attributes
-        ----------
-        model_ : MELDForecaster or None
-            Best fitted model after tuning.
-        best_ : dict or None
-            Dictionary with best configuration and validation score.
-        """
+    ) -> None:
 
         self.lags_grid = list(lags_grid)
         self.scales_grid = [tuple(s) for s in scales_grid]
@@ -386,21 +384,13 @@ class AutoMELD:
         self.model_: Optional[MELDForecaster] = None
         self.best_: Optional[Dict] = None
 
-    @staticmethod
-    def _mae(a: np.ndarray, b: np.ndarray) -> float:
-        return float(np.mean(np.abs(a - b)))
-
-    @staticmethod
-    def _rmse(a: np.ndarray, b: np.ndarray) -> float:
-        return float(np.sqrt(np.mean((a - b) ** 2)))
-
-    def fit(self, y: np.ndarray, val_fraction: float = 0.25):
+    def fit(self, y: ArrayLike, val_fraction: float = 0.25) -> "AutoMELD":
         """
         Fit AutoMELD by tuning hyperparameters on a validation split.
 
         Parameters
         ----------
-        y : ndarray of shape (n_samples,)
+        y : array-like of shape (n_samples,)
             Input time series.
         val_fraction : float, default=0.25
             Fraction of data reserved for validation.
@@ -457,9 +447,8 @@ class AutoMELD:
                                         preds.append(yhat)
                                         y_so_far = np.append(y_so_far, y[t])
                                     preds = np.array(preds, dtype=float)
-                                    score = (
-                                        self._mae(y_val, preds) if self.metric == "mae" else self._rmse(y_val, preds)
-                                    )
+                                    score = mae(y_val, preds) if self.metric == "mae" else rmse(y_val, preds)
+
                                     if score < best_score:
                                         best_score = score
                                         best_conf = dict(
@@ -482,7 +471,7 @@ class AutoMELD:
         self.best_ = {"config": best_conf, "val_score": best_score}
         return self
 
-    def predict(self, h: int, start_values: Optional[np.ndarray] = None) -> np.ndarray:
+    def predict(self, h: int, start_values: Optional[ArrayLike] = None) -> np.ndarray:
         """
         Generate forecasts with the best fitted MELDForecaster.
 
@@ -490,7 +479,7 @@ class AutoMELD:
         ----------
         h : int
             Forecast horizon.
-        start_values : ndarray of shape (>=lags,), optional
+        start_values : array-like of shape (>=lags,), optional
             Starting history for forecasts. If None, uses the full training series.
 
         Returns
