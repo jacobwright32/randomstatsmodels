@@ -5,19 +5,33 @@ import numpy as np
 class FourierForecaster:
     """
     Fourier (harmonic) forecaster with optional linear trend.
-    Fits y_t ≈ c0 + c1*t + Σ_k (a_k cos(2π k t / N) + b_k sin(2π k t / N)),
-    using up to `n_harmonics` harmonics from the sample length N.
+
+    Fits a model of the form:
+
+    .. math::
+
+        y_t \\approx c_0 + c_1 t + \\sum_{k=1}^H \\left[a_k \\cos\\left(\\frac{2\\pi k t}{N}\\right) + b_k \\sin\\left(\\frac{2\\pi k t}{N}\\right)\\right]
+
+    where `H = n_harmonics` and `N` is the fitted series length.
+
+    Parameters
+    ----------
+    n_harmonics : int, default=3
+        Number of Fourier harmonics to include (k = 1..n_harmonics).
+    trend : {"none", "linear"}, default="linear"
+        Whether to include a linear trend term.
+
+    Attributes
+    ----------
+    coef_ : ndarray of shape (n_features,)
+        Fitted regression coefficients.
+    n_ : int
+        Length of the fitted training series (defines base frequencies).
+    _Xcols_ : dict
+        Cached metadata (e.g., harmonic count) used for prediction.
     """
 
     def __init__(self, n_harmonics=3, trend="linear"):
-        """
-        Parameters
-        ----------
-        n_harmonics : int
-            Number of Fourier harmonics to include (k = 1..n_harmonics).
-        trend : {"none","linear"}
-            Whether to include a linear trend term.
-        """
         self.n_harmonics = int(n_harmonics)
         self.trend = str(trend)
         if self.trend not in ("none", "linear"):
@@ -47,7 +61,22 @@ class FourierForecaster:
 
     def fit(self, y):
         """
-        Fit coefficients by least squares on the provided series y.
+        Fit Fourier model coefficients via least squares.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Training time series.
+
+        Returns
+        -------
+        self : FourierForecaster
+            Fitted model instance.
+
+        Raises
+        ------
+        ValueError
+            If fewer than 3 data points are provided.
         """
         y = np.asarray(y, dtype=float)
         n = len(y)
@@ -63,8 +92,24 @@ class FourierForecaster:
 
     def predict(self, h):
         """
-        Forecast h steps ahead by extrapolating the fitted harmonic + trend structure.
+        Fit Fourier model coefficients via least squares.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Training time series.
+
+        Returns
+        -------
+        self : FourierForecaster
+            Fitted model instance.
+
+        Raises
+        ------
+        ValueError
+            If fewer than 3 data points are provided.
         """
+    
         if self.coef_ is None or self.n_ is None:
             raise RuntimeError("Fit the model before calling predict().")
         h = int(h)
@@ -78,7 +123,32 @@ class FourierForecaster:
 # ================= AutoFourier =================
 class AutoFourier:
     """
-    Automatic tuner for FourierForecaster: searches over number of harmonics and trend option.
+    Automatic tuner for FourierForecaster.
+
+    Searches over combinations of number of harmonics and trend options,
+    evaluates each configuration on a validation holdout, and refits
+    the best model on the full dataset.
+
+    Parameters
+    ----------
+    n_harmonics_grid : iterable of int, default=(0, 1, 2, 3, 5, 8)
+        Candidate harmonic counts to test.
+    trend_options : iterable of {"none", "linear"}, default=("none", "linear")
+        Candidate trend specifications.
+    metric : {"mae", "rmse"}, default="mae"
+        Validation metric to minimize.
+
+    Attributes
+    ----------
+    model_ : FourierForecaster or None
+        Best fitted Fourier model.
+    best_ : dict or None
+        Dictionary containing the best configuration, validation score, and metric.
+
+    Raises
+    ------
+    ValueError
+        If `metric` is not one of {"mae", "rmse"}.
     """
 
     def __init__(
@@ -87,16 +157,6 @@ class AutoFourier:
         trend_options=("none", "linear"),
         metric="mae",
     ):
-        """
-        Parameters
-        ----------
-        n_harmonics_grid : iterable of int
-            Candidate counts of harmonics to try.
-        trend_options : iterable of {"none","linear"}
-            Whether to include a trend term.
-        metric : {"mae","rmse"}
-            Validation metric to minimize.
-        """
         self.n_harmonics_grid = [int(h) for h in n_harmonics_grid]
         self.trend_options = list(trend_options)
         self.metric = metric.lower()
@@ -107,8 +167,26 @@ class AutoFourier:
 
     def fit(self, y, val_fraction=0.25):
         """
-        Split series into train/validation tail, run rolling one-step evaluation,
-        pick the best configuration, then refit on the full series.
+        Fit AutoFourier by grid search on a validation split.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Time series data.
+        val_fraction : float, default=0.25
+            Fraction of series reserved for validation.
+
+        Returns
+        -------
+        self : AutoFourier
+            Instance with best model fitted on full dataset.
+
+        Raises
+        ------
+        ValueError
+            If insufficient training data exists before validation.
+        RuntimeError
+            If no valid configuration is found.
         """
         y = np.asarray(y, dtype=float)
         N = len(y)
@@ -168,7 +246,22 @@ class AutoFourier:
 
     def predict(self, h):
         """
-        Forecast using the best-found FourierForecaster.
+        Forecast future values using the best-found FourierForecaster.
+
+        Parameters
+        ----------
+        h : int
+            Forecast horizon (number of steps ahead).
+
+        Returns
+        -------
+        preds : ndarray of shape (h,)
+            Forecasted values.
+
+        Raises
+        ------
+        RuntimeError
+            If called before `fit()`.
         """
         if self.model_ is None:
             raise RuntimeError("AutoFourier is not fitted yet.")
