@@ -1,5 +1,5 @@
 import numpy as np
-from metrics import mae, rmse
+from ..metrics import mae, rmse
 
 
 # ================= FourierForecaster =================
