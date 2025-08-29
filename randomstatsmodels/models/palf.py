@@ -1,7 +1,9 @@
-from typing import Optional, Dict, Iterable
+from typing import Optional, Dict, Iterable, Callable, Union
 import numpy as np
 from ..metrics import mae, rmse
 from .model_utils import _penalty_value, _weighted_quantile, _golden_section_minimize
+
+ArrayLike = Union[np.ndarray, Iterable[float]]
 
 
 # ================= PALF (Proximal Aggregation Lag Forecaster) =================
@@ -25,15 +27,15 @@ class PALF:
         Penalty applied to deviation from level anchor.
     level_weight : float, default=1.0
         Weight for the level penalty term.
-    irregular_timestamps : array_like or None, default=None
+    irregular_timestamps : array-like of shape (n_samples,) or None, default=None
         Optional timestamps to handle irregular spacing.
         If provided, exponential decay is based on time gaps.
 
     Attributes
     ----------
-    mu_ : float
+    mu_ : float or None
         Internal level anchor, updated during forecasting.
-    y_ : ndarray of shape (n_samples,)
+    y_ : ndarray of shape (n_samples,) or None
         Training time series data.
     """
 
@@ -47,7 +49,7 @@ class PALF:
         level_penalty: str = "l2",
         level_weight: float = 1.0,
         irregular_timestamps: Optional[np.ndarray] = None,
-    ):
+    ) -> None:
         self.p = int(p)
         self.penalty = penalty
         self.decay_param = float(decay_param)
@@ -84,7 +86,12 @@ class PALF:
         gaps = np.array([t0 - ts[t_index - i] for i in range(1, self.p + 1)], dtype=float)
         return np.exp(-gaps / max(self.decay_param, 1e-9))
 
-    def _objective_factory(self, anchors: np.ndarray, weights: np.ndarray, level_anchor: Optional[float]):
+    def _objective_factory(
+        self,
+        anchors: np.ndarray,
+        weights: np.ndarray,
+        level_anchor: Optional[float]
+    ) -> Callable[[float], float]:
         """
         Create an objective function for penalized aggregation.
 
@@ -277,7 +284,7 @@ class AutoPALF:
         level_penalty: str = "l2",
         level_weight: float = 1.0,
         irregular_timestamps: Optional[np.ndarray] = None,
-    ):
+    ) -> None:
         self.grid = dict(
             p=list(p_candidates),
             penalties=list(penalties),
