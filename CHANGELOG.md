@@ -38,3 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - adds new models to readme
 - adds docstrings for all models
 
+## [1.1.1] - 2025-08-28
+### Fix
+- AutoNeo Prediction
