@@ -1,5 +1,5 @@
 import numpy as np
-
+from metrics import mae, rmse
 
 # ================= FourierForecaster =================
 class FourierForecaster:
@@ -192,12 +192,6 @@ class AutoFourier:
             raise ValueError("Not enough data to train before validation.")
         split = N - n_val
         y_train, y_val = y[:split], y[split:]
-
-        def mae(a, b):
-            return float(np.mean(np.abs(a - b)))
-
-        def rmse(a, b):
-            return float(np.sqrt(np.mean((a - b) ** 2)))
 
         score_fn = mae if self.metric == "mae" else rmse
 
