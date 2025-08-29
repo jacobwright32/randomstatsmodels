@@ -5,7 +5,69 @@ import numpy as np
 class HybridForecastNet:
     """
     Hybrid Dynamical Fourier + Trend/AR + GRU-residual forecaster.
-    Deterministic point forecasts (extendable to probabilistic).
+
+    The model linearly combines:
+      • Seasonal harmonics (Fourier pairs at multiples of 2π / seasonal_period)
+      • Polynomial trend up to `trend_degree`
+      • Autoregressive (AR) lags up to `ar_order`
+    and then learns a nonlinear **residual** mapping with a lightweight GRU.
+
+    Equation (ASCII)
+    ----------------
+        y[t] ≈  Linear_{Fourier, Trend, AR}(t, y[t-1..])  +  GRU( residual window )
+
+    Deterministic point forecasts by default (can be extended to probabilistic).
+
+    Parameters
+    ----------
+    seasonal_period : int, default=24
+        Fundamental seasonal period used by the Fourier block.
+    fourier_order : int, default=3
+        Number of Fourier harmonics. Uses k = 1..fourier_order with both cos/sin.
+    trend_degree : int, default=1
+        Polynomial trend degree (0 = intercept only).
+    ar_order : int, default=3
+        Number of AR lags in the linear part.
+    hidden_size : int, default=16
+        GRU hidden width.
+    rnn_layers : int, default=1
+        (Reserved) Number of stacked GRU layers. Current implementation trains a single GRU cell;
+        this value is stored for API compatibility.
+    epochs : int, default=100
+        Training epochs for the residual GRU (full-batch).
+    lr : float, default=0.01
+        Learning rate for the GRU parameters.
+    seed : int, default=123
+        Random seed for initialization.
+
+    Attributes
+    ----------
+    _fourier_coefs : ndarray of shape (2*fourier_order,)
+        Learned Fourier coefficients [cos terms | sin terms] (on normalized y).
+    _trend_coefs : ndarray of shape (trend_degree + 1,)
+        Polynomial trend coefficients (on normalized y).
+    _ar_coefs : ndarray of shape (ar_order,)
+        AR coefficients (on normalized y).
+    _rnn : dict
+        Container of GRU parameters (weights, biases, hidden size).
+    _y_mean : float
+        Training mean of the series (for de/normalization).
+    _y_std : float
+        Training std of the series (for de/normalization).
+    _y_train_norm : ndarray
+        Normalized training series.
+    _residual_norm : ndarray
+        Residuals (normalized) after fitting the linear block on training data.
+    _linear_fitted : ndarray
+        Linear block in-sample fit on normalized data.
+    _seq_len : int
+        Residual window length used to train the GRU (ties to `ar_order`).
+    _res_window_init : ndarray of shape (_seq_len,)
+        Last residual window from training (seed for forecasting).
+    _ar_buffer_init : ndarray of shape (max(1, ar_order),)
+        Last normalized lags from training (seed for AR recursion).
+    train_loss_history : list of float
+        Per-epoch average training loss for the GRU residual model.
     """
 
     def __init__(
@@ -53,6 +115,7 @@ class HybridForecastNet:
     # ---------- feature builders ----------
 
     def _fourier_feats(self, t_idx):
+        """Return stacked cos/sin features for k=1..fourier_order at time index `t_idx`."""
         if self.fourier_order == 0:
             return np.empty(0, dtype=float)
         k = np.arange(1, self.fourier_order + 1, dtype=float)
@@ -60,11 +123,13 @@ class HybridForecastNet:
         return np.concatenate([np.cos(ang), np.sin(ang)], axis=0)  # length 2*order
 
     def _trend_val(self, t_idx):
+        """Evaluate the polynomial trend at integer time index `t_idx`."""
         if self.trend_degree < 0:
             return 0.0
         return sum(self._trend_coefs[d] * (t_idx**d) for d in range(self.trend_degree + 1))
 
     def _prepare_design_matrix(self, y_norm):
+        """Build the linear-block design matrix [Fourier | Trend | AR] on normalized series."""
         n = len(y_norm)
         t = np.arange(n, dtype=float)
 
@@ -101,6 +166,7 @@ class HybridForecastNet:
     # ---------- GRU helpers ----------
 
     def _init_gru(self):
+        """Initialize GRU parameters (single-cell) with small random weights."""
         rs = np.random.RandomState(self.seed)
         H = self.hidden_size
         # Single input scalar per step (residual)
@@ -140,7 +206,21 @@ class HybridForecastNet:
 
     def _gru_forward_once(self, rnn, seq):
         """
-        Run GRU over a residual window (seq: shape (L,)), return final hidden h and output y_pred.
+        Run a GRU over a residual window.
+
+        Parameters
+        ----------
+        rnn : dict
+            GRU parameter dictionary.
+        seq : ndarray of shape (L,)
+            Residual window sequence.
+
+        Returns
+        -------
+        h_final : ndarray of shape (H,)
+            Final hidden state.
+        y_pred : float
+            Predicted next residual.
         """
         W_z, U_z, b_z = rnn["W_z"], rnn["U_z"], rnn["b_z"]
         W_r, U_r, b_r = rnn["W_r"], rnn["U_r"], rnn["b_r"]
@@ -161,6 +241,29 @@ class HybridForecastNet:
     # ---------- fit / predict ----------
 
     def fit(self, y):
+        """
+        Fit the hybrid model.
+
+        Steps:
+          1) Normalize y.
+          2) Fit the linear block (Fourier + Trend + AR) via least squares.
+          3) Compute residuals and train a small GRU to predict next residual.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Univariate time series.
+
+        Returns
+        -------
+        self : HybridForecastNet
+            Fitted model instance.
+
+        Raises
+        ------
+        ValueError
+            If the series is too short for the configured `ar_order`.
+        """
         y = np.asarray(y, dtype=float)
         n = len(y)
         if n < max(3, self.ar_order + 1):
@@ -314,6 +417,7 @@ class HybridForecastNet:
         return self
 
     def _linear_forecast_norm(self, current_index, ar_buffer):
+        """Compute linear part (normalized space) at future index, using AR buffer."""
         # Fourier
         fourier = 0.0
         if self.fourier_order > 0 and self._fourier_coefs.size > 0:
@@ -341,6 +445,24 @@ class HybridForecastNet:
         return fourier + trend + ar_part
 
     def predict(self, h):
+        """
+        Forecast future values.
+
+        Parameters
+        ----------
+        h : int
+            Forecast horizon (number of steps ahead).
+
+        Returns
+        -------
+        preds : ndarray of shape (h,)
+            Point forecasts.
+
+        Raises
+        ------
+        RuntimeError
+            If called before `fit()`.
+        """
         if self._y_train_norm is None or self._rnn is None:
             raise RuntimeError("Call fit() before predict().")
         h = int(h)
@@ -373,8 +495,49 @@ class HybridForecastNet:
 # ============ AutoHybridForecaster ==============
 class AutoHybridForecaster:
     """
-    Validation tuner for HybridForecastNet.
-    Accepts `season_length` as an alias for `seasonal_period`.
+    Validation tuner for :class:`HybridForecastNet`.
+
+    Performs a grid search over Fourier order, trend degree, AR order, and GRU
+    hidden size. Uses a holdout validation split, selects the configuration
+    with the lowest MSE on the validation set, then refits the best model
+    on the full series.
+
+    ``season_length`` is accepted as an alias for ``seasonal_period``.
+
+    Parameters
+    ----------
+    seasonal_period : int, default=24
+        Fundamental seasonal period used by the Fourier block.
+    season_length : int or None, default=None
+        Alias for ``seasonal_period``. If provided, overrides ``seasonal_period``.
+    candidate_fourier : iterable of int, default=(0, 3, 6)
+        Candidate numbers of Fourier harmonics.
+    candidate_trend : iterable of int, default=(0, 1)
+        Candidate polynomial trend degrees.
+    candidate_ar : iterable of int, default=(0, 3, 5)
+        Candidate AR orders.
+    candidate_hidden : iterable of int, default=(8, 16, 32)
+        Candidate GRU hidden sizes.
+    rnn_layers : int, default=1
+        (Reserved) Number of GRU layers; current implementation trains one GRU cell.
+    epochs : int, default=100
+        Training epochs for the residual GRU in each candidate model.
+    lr : float, default=0.01
+        Learning rate for GRU training.
+    val_ratio : float, default=0.2
+        Fraction of the series reserved for validation (tail split).
+    seed : int, default=123
+        Random seed for reproducibility.
+
+    Attributes
+    ----------
+    best_model : HybridForecastNet or None
+        Best model refit on the full dataset.
+    best_config : dict or None
+        Dictionary with the best hyperparameters:
+        ``{"fourier_order", "trend_degree", "ar_order", "hidden_size"}``.
+    best_val_mse : float or None
+        Best validation MSE achieved during tuning.
     """
 
     def __init__(
@@ -407,6 +570,26 @@ class AutoHybridForecaster:
         self.best_val_mse = None
 
     def fit(self, y):
+        """
+        Run grid search on a validation split and refit the best model.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Univariate time series.
+
+        Returns
+        -------
+        self : AutoHybridForecaster
+            Fitted tuner with `best_model`, `best_config`, and `best_val_mse` set.
+
+        Raises
+        ------
+        ValueError
+            If the series is too short to create a meaningful validation split.
+        RuntimeError
+            If no valid configuration can be fitted.
+        """
         y = np.asarray(y, dtype=float)
         n = len(y)
         split = max(1, int(n * (1.0 - self.val_ratio)))
@@ -473,6 +656,24 @@ class AutoHybridForecaster:
         return self
 
     def predict(self, h):
+        """
+        Forecast using the best fitted :class:`HybridForecastNet`.
+
+        Parameters
+        ----------
+        h : int
+            Forecast horizon (number of steps ahead).
+
+        Returns
+        -------
+        preds : ndarray of shape (h,)
+            Forecasted values.
+
+        Raises
+        ------
+        RuntimeError
+            If called before :meth:`fit`.
+        """
         if self.best_model is None:
             raise RuntimeError("Call fit() first.")
         return self.best_model.predict(h)

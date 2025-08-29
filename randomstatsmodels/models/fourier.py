@@ -6,13 +6,10 @@ class FourierForecaster:
     """
     Fourier (harmonic) forecaster with optional linear trend.
 
-    Fits a model of the form:
+    Model (ASCII):
+        y[t] ~= c0 + c1*t + sum_{k=1..H} [a_k * cos(2*pi*k*t/N) + b_k * sin(2*pi*k*t/N)]
 
-    .. math::
-
-        y_t \\approx c_0 + c_1 t + \\sum_{k=1}^H \\left[a_k \\cos\\left(\\frac{2\\pi k t}{N}\\right) + b_k \\sin\\left(\\frac{2\\pi k t}{N}\\right)\\right]
-
-    where `H = n_harmonics` and `N` is the fitted series length.
+    where H = n_harmonics and N = length of the fitted series.
 
     Parameters
     ----------
