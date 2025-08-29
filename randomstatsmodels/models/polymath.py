@@ -2,8 +2,9 @@ import numpy as np
 
 
 class PolymathForecaster:
-    """Polymath Forecaster: A generalized forecasting model with polynomial, Fourier,
-    and other basis expansions over lagged states.
+    """
+    Polymath Forecaster: A generalized forecasting model with polynomial,
+    Fourier, and other basis expansions over lagged states.
     """
 
     def __init__(
@@ -16,14 +17,34 @@ class PolymathForecaster:
         window_size=None,
     ):
         """
-        lags: Number of lagged observations to use (the size of the state vector).
-        degree: Polynomial degree for non-linear lag interactions.
-        period_length: Length of seasonal period to model (e.g., 12 for monthly, 24 for daily/hourly).
-        fourier_terms: Number of Fourier harmonics (sine/cosine pairs) to include for the given period.
-                       If 0, no Fourier seasonal features are included.
-        ridge: Ridge regularization strength (lambda). 0.0 means no ridge penalty (OLS).
-        window_size: If set, model is fit only on the last `window_size` observations (rolling window).
-                     If None, uses all available data.
+        Initialize a PolymathForecaster.
+
+        Parameters
+        ----------
+        lags : int, default=12
+            Number of lagged observations to use (the size of the state vector).
+        degree : int, default=2
+            Polynomial degree for non-linear lag interactions.
+        period_length : int or None, default=None
+            Length of seasonal period to model (e.g., 12 for monthly, 24 for daily/hourly).
+            If None, no seasonal structure is modeled.
+        fourier_terms : int, default=0
+            Number of Fourier harmonics (sine/cosine pairs) to include for the given period.
+            If 0, no Fourier seasonal features are included.
+        ridge : float, default=0.0
+            Ridge regularization strength (λ). ``0.0`` means no ridge penalty (ordinary least squares).
+        window_size : int or None, default=None
+            If set, the model is fit only on the last `window_size` observations (rolling window).
+            If None, all available data is used.
+
+        Attributes
+        ----------
+        coef_ : ndarray of shape (n_features,), optional
+            Learned regression coefficients after fitting.
+        last_window_ : ndarray of shape (lags,), optional
+            The most recent lagged observations, used for recursive forecasting.
+        last_time_index_ : int or float, optional
+            Last observed time index, used for generating Fourier seasonal features.
         """
         self.lags = int(lags)
         self.degree = int(degree)
@@ -37,7 +58,28 @@ class PolymathForecaster:
         self.last_time_index_ = None  # store last time index for forecasting if needed
 
     def _features(self, state: np.ndarray, t_idx: int = None) -> np.ndarray:
-        """Construct feature vector from the current state (lagged values) and time index."""
+        """
+        Construct a feature vector from the current state (lagged values) and time index.
+
+        Parameters
+        ----------
+        state : ndarray of shape (lags,)
+            Lagged values ordered from most recent to oldest.
+        t_idx : int or float, optional
+            Time index corresponding to the current state.
+            Required if Fourier seasonal terms are enabled.
+
+        Returns
+        -------
+        feats : ndarray of shape (n_features,)
+            Feature vector including polynomial, interaction, and Fourier terms.
+
+        Raises
+        ------
+        RuntimeError
+            If Fourier terms are requested but `t_idx` is not provided and
+            no previous time index is stored.
+        """
         # state is expected to be length = lags, ordered [y_t, y_{t-1}, ..., y_{t-m+1}]
         m = len(state)
         feats = [1.0]  # intercept
@@ -73,7 +115,26 @@ class PolymathForecaster:
         return np.array(feats, dtype=float)
 
     def fit(self, y: np.ndarray, time_index: np.ndarray = None):
-        """Fit the Polymath model to the time series data."""
+        """
+        Fit the Polymath model to a univariate time series.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Time series values to fit on.
+        time_index : ndarray of shape (n_samples,), optional
+            Corresponding time indices. Required if Fourier seasonal features are enabled.
+
+        Returns
+        -------
+        self : PolymathForecaster
+            Fitted model instance.
+
+        Raises
+        ------
+        ValueError
+            If there are not enough data points to fit the model.
+        """
         y = np.asarray(y, dtype=float)
         N = len(y)
         m = self.lags
@@ -127,7 +188,24 @@ class PolymathForecaster:
         return self
 
     def predict(self, h: int) -> np.ndarray:
-        """Generate forecasts for h future steps."""
+        """
+        Generate forecasts for a specified horizon.
+
+        Parameters
+        ----------
+        h : int
+            Forecast horizon (number of future steps).
+
+        Returns
+        -------
+        preds : ndarray of shape (h,)
+            Forecasted values for the next `h` steps.
+
+        Raises
+        ------
+        RuntimeError
+            If the model has not been fitted.
+        """
         if self.coef_ is None:
             raise RuntimeError("Model is not fitted yet. Call fit() first.")
         m = self.lags
@@ -152,8 +230,10 @@ class PolymathForecaster:
 
 
 class AutoPolymath:
-    """Automatic tuner for PolymathForecaster. Explores combinations of lags, degree,
-    seasonal Fourier terms, and window sizes to find the best model.
+    """
+    Automatic tuner for PolymathForecaster.
+    Explores combinations of lags, degree, seasonal Fourier terms,
+    and window sizes to find the best model.
     """
 
     def __init__(
@@ -165,12 +245,30 @@ class AutoPolymath:
         window_fracs=(None, 0.5),
     ):
         """
-        lags_grid: iterable of lag lengths to try.
-        degree_grid: iterable of polynomial degrees to try.
-        seasonality_options: iterable of seasonal period lengths to consider (e.g., (None, 12, 24) to try no seasonality or an annual or daily cycle).
-        fourier_terms_grid: iterable of how many Fourier pairs to use if seasonality is enabled. Ignored if seasonality is None.
-        window_fracs: iterable of fractions of the training set to use as rolling window. None means use full training.
-                      e.g., 0.5 means use last 50% of data for training.
+        Initialize AutoPolymath grid search.
+
+        Parameters
+        ----------
+        lags_grid : iterable of int, default=(6, 12, 24)
+            Candidate lag lengths to evaluate.
+        degree_grid : iterable of int, default=(1, 2, 3)
+            Candidate polynomial degrees to evaluate.
+        seasonality_options : iterable of int or None, default=(None,)
+            Seasonal period lengths to consider. ``None`` disables seasonality.
+        fourier_terms_grid : iterable of int, default=(0, 2, 4)
+            Candidate numbers of Fourier pairs to use if seasonality is enabled.
+        window_fracs : iterable of float or None, default=(None, 0.5)
+            Fractions of the training set to use as a rolling window.
+            ``None`` means use full training data.
+
+        Attributes
+        ----------
+        best_model_ : PolymathForecaster or None
+            Best fitted model after grid search.
+        best_config_ : dict or None
+            Dictionary of best hyperparameter configuration.
+        best_val_score_ : float or None
+            Validation score of the best model.
         """
         self.lags_grid = lags_grid
         self.degree_grid = degree_grid
@@ -188,7 +286,30 @@ class AutoPolymath:
         metric="mae",
         time_index: np.ndarray = None,
     ):
-        """Find the best PolymathForecaster configuration via grid search on a validation holdout."""
+        """
+        Find the best PolymathForecaster configuration via grid search.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Time series values.
+        val_fraction : float, default=0.2
+            Fraction of data to reserve for validation.
+        metric : {"mae", "rmse"}, default="mae"
+            Evaluation metric for validation scoring.
+        time_index : ndarray of shape (n_samples,), optional
+            Corresponding time indices. Required if Fourier seasonal features are enabled.
+
+        Returns
+        -------
+        self : AutoPolymath
+            Instance with best model fitted on the full dataset.
+
+        Raises
+        ------
+        RuntimeError
+            If no valid model could be fitted.
+        """
         y = np.asarray(y, dtype=float)
         N = len(y)
         # Determine validation size (at least 16 points or val_fraction)
@@ -270,7 +391,30 @@ class AutoPolymath:
         return self
 
     def predict(self, h: int) -> np.ndarray:
-        """Generate h-step forecast using the best found model."""
+        """
+        Find the best PolymathForecaster configuration via grid search.
+
+        Parameters
+        ----------
+        y : ndarray of shape (n_samples,)
+            Time series values.
+        val_fraction : float, default=0.2
+            Fraction of data to reserve for validation.
+        metric : {"mae", "rmse"}, default="mae"
+            Evaluation metric for validation scoring.
+        time_index : ndarray of shape (n_samples,), optional
+            Corresponding time indices. Required if Fourier seasonal features are enabled.
+
+        Returns
+        -------
+        self : AutoPolymath
+            Instance with best model fitted on the full dataset.
+
+        Raises
+        ------
+        RuntimeError
+            If no valid model could be fitted.
+        """
         if self.best_model_ is None:
             raise RuntimeError("AutoPolymath has not been fit yet.")
         return self.best_model_.predict(h)
