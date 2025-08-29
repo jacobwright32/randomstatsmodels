@@ -105,6 +105,51 @@ theta.fit(y)
 print("Prediction:", theta.predict(h))
 ```
 
+### AutoHybridForecaster
+
+```python
+from randomstatsmodels import AutoHybridForecaster
+
+hybrid = AutoHybridForecaster(
+    candidate_fourier=(0, 3, 6),
+    candidate_trend=(0, 1),
+    candidate_ar=(0, 3, 5),
+    candidate_hidden=(8, 16, 32),
+)
+hybrid.fit(y)
+print("Best config:", hybrid.best_config)
+print("Prediction:", hybrid.predict(h))
+```
+
+### AutoMELD
+
+```python
+from randomstatsmodels import AutoMELD
+
+meld = AutoMELD(
+    lags_grid=(8, 12),
+    scales_grid=((1, 3, 7), (1, 2, 4, 8)),
+    rff_features_grid=(64, 128),
+)
+meld.fit(y)
+print("Best config:", meld.best_["config"])
+print("Prediction:", meld.predict(h))
+```
+
+### AutoPALF
+
+```python
+from randomstatsmodels import AutoPALF
+
+palf = AutoPALF(
+    p_candidates=(4, 8, 12),
+    penalties=("huber", "l2"),
+)
+palf.fit(y)
+print("Validation score:", palf.best_["val_score"])
+print("Prediction:", palf.predict(h))
+```
+
 ---
 
 ## Metrics
@@ -112,7 +157,7 @@ print("Prediction:", theta.predict(h))
 Available out of the box:
 
 ```python
-from randomstatsmodels.metrics import mae, rmse, mape, smape
+from randomstatsmodels.metrics import mae, mse, rmse, mape, smape
 ```
 
 ---
