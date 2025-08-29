@@ -1,4 +1,4 @@
-from typing import Optional, Iterable, Tuple, Dict, Union
+from typing import Optional, Iterable, Dict, Union
 import numpy as np
 from ..metrics import mae, rmse
 

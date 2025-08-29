@@ -1,38 +1,71 @@
+from typing import Optional, Iterable, Union
 import numpy as np
+
+ArrayLike = Union[np.ndarray, Iterable[float]]
 
 
 # ========== AutoThetaAR ==========
 class AutoThetaAR:
     """
-    Hybrid Theta-AR(1) forecaster:
-      1) Optional deseasonalization (additive in log-space if multiplicative)
-      2) Theta core: linear trend + SES on theta-line (theta=2), combined 50/50
-      3) Residual AR(1) correction
-    Fast: O(n) fit, O(h) predict.
+    Hybrid Theta–AR(1) forecaster.
+
+    Pipeline
+    --------
+    1) Optional deseasonalization (additive in working space; if multiplicative,
+       we operate in log-space).
+    2) Theta core (default θ = 2): combine a linear trend with SES on the theta-line.
+       The combination is convex with weight `weight` for the trend and (1-weight) for
+       the SES level; 0.5 is the standard “Theta” setting.
+    3) AR(1) correction on SES residuals.
+
+    Complexity: O(n) fit, O(h) predict.
+
+    Parameters
+    ----------
+    season_length : int, default=1
+        Seasonal period `m` (e.g., 7, 12, 24). Use 1 for non-seasonal.
+    deseasonalize : bool, default=True
+        If True and `m>1`, estimate/remove seasonality during fit and add it back in predict.
+    multiplicative : bool or None, default=None
+        If None, auto-detect: use multiplicative only if all `y > 0`.
+        Multiplicative seasonality is modeled by a log-transform (working space).
+    theta : float, default=2.0
+        Theta coefficient; classic Theta method uses 2.0.
+    weight : float, default=0.5
+        Trend/level combination weight in [0, 1]; 0.5 is standard.
+
+    Attributes
+    ----------
+    _use_log : bool
+        Whether the working space used a log-transform.
+    _n : int or None
+        Length of the fitted series.
+    seasonal_indices : ndarray of shape (season_length,) or None
+        Additive seasonal indices in working space (mean 0).
+    a : float or None
+        Linear trend intercept (in deseasonalized working space).
+    b : float or None
+        Linear trend slope (in deseasonalized working space).
+    alpha : float or None
+        SES smoothing parameter on the theta-line.
+    last_level : float or None
+        Final SES level after fitting (working space).
+    phi : float
+        AR(1) coefficient fit on SES residuals.
+    last_resid : float
+        Last SES residual used to seed AR(1) recursion.
+    _fitted : bool
+        Whether `fit` has been called successfully.
     """
 
     def __init__(
         self,
-        season_length=1,
-        deseasonalize=True,
-        multiplicative=None,
-        theta=2.0,
-        weight=0.5,
-    ):
-        """
-        Parameters
-        ----------
-        season_length : int
-            Seasonal period m (e.g., 7, 12, 24). Use 1 for non-seasonal.
-        deseasonalize : bool
-            If True and m>1, estimate/remove seasonality, then add back on predict.
-        multiplicative : bool or None
-            If None, auto: use multiplicative only if all y>0; we model multiplicative by log-transform.
-        theta : float
-            Theta coefficient (default 2.0).
-        weight : float in [0,1]
-            Weight for trend vs level in Theta combination. 0.5 is standard.
-        """
+        season_length: int = 1,
+        deseasonalize: bool = True,
+        multiplicative: Optional[bool] = None,
+        theta: float = 2.0,
+        weight: float = 0.5,
+    ) -> None:
         self.season_length = int(max(1, season_length))
         self.deseasonalize = bool(deseasonalize)
         self.multiplicative = multiplicative
@@ -40,20 +73,32 @@ class AutoThetaAR:
         self.weight = float(weight)
 
         # learned params
-        self._use_log = False
-        self._n = None
-        self.seasonal_indices = None  # length m (additive indices in working space)
-        self.a = None  # trend intercept (on deseasonalized scale)
-        self.b = None  # trend slope
-        self.alpha = None  # SES smoothing on theta-line
-        self.last_level = None  # L_T
-        self.phi = 0.0  # AR(1) coefficient on SES residuals
-        self.last_resid = 0.0  # last residual from SES fit
-        self._fitted = False
+        self._use_log: bool = False
+        self._n: Optional[int] = None
+        self.seasonal_indices: Optional[np.ndarray] = None  # length m
+        self.a: Optional[float] = None  # trend intercept
+        self.b: Optional[float] = None  # trend slope
+        self.alpha: Optional[float] = None  # SES smoothing
+        self.last_level: Optional[float] = None  # terminal SES level
+        self.phi: float = 0.0  # AR(1) coef on SES residuals
+        self.last_resid: float = 0.0  # last SES residual
+        self._fitted: bool = False
 
     # ---------- helpers ----------
-    def _estimate_seasonal_indices(self, yw):
-        """Return length-m additive seasonal indices (mean 0) in the working space yw."""
+    def _estimate_seasonal_indices(self, yw: np.ndarray) -> np.ndarray:
+        """
+        Estimate additive seasonal indices (mean 0) in the working space.
+
+        Parameters
+        ----------
+        yw : ndarray of shape (n_samples,)
+            Working-space series (possibly log-transformed).
+
+        Returns
+        -------
+        seas : ndarray of shape (season_length,)
+            Additive seasonal indices with mean 0.
+        """
         m = self.season_length
         n = len(yw)
         if n < m or m == 1:
@@ -79,7 +124,33 @@ class AutoThetaAR:
         return seas
 
     # ---------- API ----------
-    def fit(self, y):
+    def fit(self, y: ArrayLike) -> "AutoThetaAR":
+        """
+        Fit the Hybrid Theta–AR(1) model.
+
+        Steps
+        -----
+        1) Choose working space (log if multiplicative & feasible).
+        2) Estimate additive seasonality (in working space) if enabled.
+        3) Fit linear trend (OLS) on deseasonalized series.
+        4) Build theta-line and select SES `alpha` by one-step SSE.
+        5) Fit AR(1) coefficient on SES one-step residuals.
+
+        Parameters
+        ----------
+        y : array-like of shape (n_samples,)
+            Input univariate time series.
+
+        Returns
+        -------
+        self : AutoThetaAR
+            Fitted model instance.
+
+        Raises
+        ------
+        ValueError
+            If fewer than 3 data points are provided.
+        """
         y = np.asarray(y, dtype=float)
         n = y.size
         if n < 3:
@@ -157,7 +228,25 @@ class AutoThetaAR:
         self._fitted = True
         return self
 
-    def predict(self, h):
+    def predict(self, h: int) -> np.ndarray:
+        """
+        Forecast `h` steps ahead.
+
+        Parameters
+        ----------
+        h : int
+            Forecast horizon.
+
+        Returns
+        -------
+        yhat : ndarray of shape (h,)
+            Point forecasts.
+
+        Raises
+        ------
+        RuntimeError
+            If called before :meth:`fit`.
+        """
         if not self._fitted:
             raise RuntimeError("Call fit() before predict().")
         h = int(h)
