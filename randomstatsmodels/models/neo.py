@@ -251,7 +251,7 @@ class AutoNEO:
         self.model_ = final
         self.best_ = dict(config=best_conf, val_score=best_score)
         return self
-    
+
     def predict(self, h: int):
         """
         Generate forecasts using the best-fitted model.

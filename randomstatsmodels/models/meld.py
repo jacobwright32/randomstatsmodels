@@ -11,7 +11,7 @@ class MELDForecaster:
       - Multiscale, causal moving-average embeddings (wavelet-inspired, causal).
       - Nonlinear feature lifting via Random Fourier Features (RBF kernel approximation).
       - Linear dynamics in feature space (ridge-regularized regression).
-      - Instance-based analog correction (kNN in lifted space), blended adaptively 
+      - Instance-based analog correction (kNN in lifted space), blended adaptively
         by a confidence weight from neighbor distances.
     """
 

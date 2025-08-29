@@ -109,7 +109,7 @@ class FourierForecaster:
         ValueError
             If fewer than 3 data points are provided.
         """
-    
+
         if self.coef_ is None or self.n_ is None:
             raise RuntimeError("Fit the model before calling predict().")
         h = int(h)
