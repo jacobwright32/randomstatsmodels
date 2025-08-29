@@ -1,5 +1,5 @@
 import numpy as np
-
+from metrics import mse
 
 # ================== HybridForecastNet =================
 class HybridForecastNet:
@@ -621,11 +621,11 @@ class AutoHybridForecaster:
                             )
                             model.fit(y_train)
                             preds = model.predict(len(y_val))  # <- fixed: model now has needed state
-                            mse = float(np.mean((preds - y_val) ** 2))
+                            mse_value = mse(y_val, preds)
                         except Exception:
                             continue
-                        if mse < best_mse:
-                            best_mse = mse
+                        if mse_value < best_mse:
+                            best_mse = mse_value
                             best_model = model
                             best_cfg = dict(
                                 fourier_order=fo,
