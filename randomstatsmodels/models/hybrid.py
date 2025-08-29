@@ -1,5 +1,5 @@
 import numpy as np
-from metrics import mse
+from ..metrics import mse
 
 
 # ================== HybridForecastNet =================
