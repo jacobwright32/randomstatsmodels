@@ -167,10 +167,10 @@ def _avg_block(per_iter):
             if per_iter and "predict_time_s" in per_iter[0]
             else None
         ),
-        "avg_mae": round(float(np.mean([x["mae"] for x in per_iter])), 3) if per_iter else None,
-        "avg_rmse": round(float(np.mean([x["rmse"] for x in per_iter])), 3) if per_iter else None,
-        "avg_mape": round(float(np.mean([x["mape"] for x in per_iter])), 3) if per_iter else None,
-        "avg_smape": round(float(np.mean([x["smape"] for x in per_iter])), 3) if per_iter else None,
+        "avg_mae": (round(float(np.mean([x["mae"] for x in per_iter])), 3) if per_iter else None),
+        "avg_rmse": (round(float(np.mean([x["rmse"] for x in per_iter])), 3) if per_iter else None),
+        "avg_mape": (round(float(np.mean([x["mape"] for x in per_iter])), 3) if per_iter else None),
+        "avg_smape": (round(float(np.mean([x["smape"] for x in per_iter])), 3) if per_iter else None),
     }
 
 
@@ -271,7 +271,10 @@ def benchmark_models(
         if not per_iter:
             # Do not include empty models to avoid None in summary formatting
             continue
-        results["models"][model_name] = {**_avg_block(per_iter), "per_iteration": per_iter}
+        results["models"][model_name] = {
+            **_avg_block(per_iter),
+            "per_iteration": per_iter,
+        }
 
     # Compute ensembles (metrics only; no timing)
     valid_ens = set([e.lower() for e in ensembles]) if ensembles else set()

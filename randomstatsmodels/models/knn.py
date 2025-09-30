@@ -1,31 +1,62 @@
 import numpy as np
+from typing import Optional, Union, Sequence, Dict, List
+
+from ..metrics import mae, rmse
+
+ArrayLike = Union[Sequence[float], np.ndarray]
 
 
 # ================= KNNForecaster =================
 class KNNForecaster:
     """
     K-Nearest Neighbors Analog Forecaster.
-    Finds past patterns similar to the recent history and predicts using their outcomes.
+
+    Uses a fixed-length history window (embedding) to find similar
+    past subsequences in the training series and forecasts by
+    averaging the next values of the k nearest analogs.
+
+    Parameters
+    ----------
+    window : int, default=8
+        Length of the history window (embedding dimension).
+    k : int, default=3
+        Number of nearest neighbors to use for forecasting.
+
+    Attributes
+    ----------
+    data : ndarray of shape (n_samples,)
+        Stored training series.
+    _X : ndarray of shape (n_windows, window)
+        Matrix of past subsequences (windowed embeddings).
+    _y_next : ndarray of shape (n_windows,)
+        Next values following each subsequence in `_X`.
     """
 
-    def __init__(self, window=8, k=3):
-        """
-        Parameters
-        ----------
-        window : int
-            Length of the history window (embedding dimension) to use for finding analogs.
-        k : int
-            Number of nearest neighbors to average for forecasting.
-        """
+    def __init__(self, window: int = 8, k: int = 3) -> None:
         self.window = int(window)
         self.k = int(k)
-        self.data = None  # stores the fitted time series
-        self._X = None  # matrix of shape (n_windows, window) of past subsequences
-        self._y_next = None  # array of next values corresponding to each subsequence in _X
+        self.data: Optional[np.ndarray] = None
+        self._X: Optional[np.ndarray] = None
+        self._y_next: Optional[np.ndarray] = None
 
-    def fit(self, y):
+    def fit(self, y: ArrayLike) -> "KNNForecaster":
         """
-        Store the time series and precompute windowed subsequences for neighbor search.
+        Fit the forecaster by storing the series and building the analog library.
+
+        Parameters
+        ----------
+        y : array-like of shape (n_samples,)
+            Training time series.
+
+        Returns
+        -------
+        self : KNNForecaster
+            Fitted instance.
+
+        Raises
+        ------
+        ValueError
+            If the series is shorter than `window + 1`.
         """
         y = np.asarray(y, dtype=float)
         n = len(y)
@@ -41,10 +72,19 @@ class KNNForecaster:
         self._y_next = y[self.window :]  # length n_windows
         return self
 
-    def _predict_one(self, current_window):
+    def _predict_one(self, current_window: np.ndarray) -> float:
         """
-        Internal helper to predict the next value given the current window (length = self.window).
-        Uses the precomputed library self._X and self._y_next.
+        Predict the next value given a current history window.
+
+        Parameters
+        ----------
+        current_window : ndarray of shape (window,)
+            Most recent subsequence.
+
+        Returns
+        -------
+        float
+            Forecasted next value.
         """
         # Compute distances from current_window to each stored window in the library
         # Using Euclidean distance (L2 norm)
@@ -78,22 +118,29 @@ class KNNForecaster:
             next_vals = self._y_next[nn_idx]
             return float(np.dot(weights, next_vals))
 
-    def predict(self, h, start_values=None):
+    def predict(self, h: int, start_values: Optional[ArrayLike] = None) -> np.ndarray:
         """
-        Iteratively predict h time steps into the future.
+        Iteratively forecast h future steps.
 
         Parameters
         ----------
         h : int
-            Forecast horizon (number of future points to predict).
-        start_values : array-like (optional)
-            An optional starting window of length = self.window. If None, uses the last
-            'window' points from the fitted data as the starting state.
+            Forecast horizon (number of steps).
+        start_values : array-like of shape (window,), optional
+            Optional starting window. If None, uses the last
+            `window` values from the training series.
 
         Returns
         -------
-        preds : np.ndarray
-            Array of length h with the forecasted values.
+        preds : ndarray of shape (h,)
+            Forecasted values.
+
+        Raises
+        ------
+        RuntimeError
+            If called before `fit()`.
+        ValueError
+            If `start_values` length != `window`.
         """
         if self.data is None:
             raise RuntimeError("Fit the model before calling predict().")
@@ -121,30 +168,67 @@ class KNNForecaster:
 
 class AutoKNN:
     """
-    Automatic tuner for KNNForecaster hyperparameters (window length and k neighbors).
+    Automatic tuner for :class:`KNNForecaster`.
+
+    Performs grid search over `window` and `k` using a holdout
+    validation split, selects the best configuration, and refits
+    on the full series.
+
+    Parameters
+    ----------
+    window_grid : iterable of int, default=(4, 8, 12)
+        Candidate window lengths.
+    k_grid : iterable of int, default=(1, 3, 5)
+        Candidate neighbor counts.
+    metric : {"mae", "rmse"}, default="mae"
+        Validation error metric.
+
+    Attributes
+    ----------
+    model_ : KNNForecaster or None
+        Best fitted forecaster.
+    best_ : dict or None
+        Dictionary with best configuration and validation score.
     """
 
-    def __init__(self, window_grid=(4, 8, 12), k_grid=(1, 3, 5), metric="mae"):
-        """
-        Parameters
-        ----------
-        window_grid : iterable of int
-            Candidate values for the window (embedding length) to try.
-        k_grid : iterable of int
-            Candidate values for number of neighbors to try.
-        metric : str, "mae" or "rmse"
-            Metric to optimize on validation set: mean absolute error or root mean squared error.
-        """
+    def __init__(
+        self,
+        window_grid: Sequence[int] = (4, 8, 12),
+        k_grid: Sequence[int] = (1, 3, 5),
+        metric: str = "mae",
+    ) -> None:
         self.window_grid = list(window_grid)
         self.k_grid = list(k_grid)
         self.metric = metric.lower()
-        self.model_ = None  # will hold the final fitted KNNForecaster
-        self.best_ = None  # dict with best config and validation score
+        self.model_: Optional[KNNForecaster] = None
+        self.best_: Optional[Dict] = None
 
-    def fit(self, y, val_fraction=0.25):
+    def fit(self, y: ArrayLike, val_fraction: float = 0.25) -> "AutoKNN":
         """
-        Fit KNNForecaster with best hyperparameters found via validation.
-        Splits the series into training and validation, searches grid, and refits on full data.
+        Grid search tuner for KNNForecaster.
+
+        Splits the series into training and validation,
+        evaluates candidate configs, and refits the best model
+        on the full series.
+
+        Parameters
+        ----------
+        y : array-like of shape (n_samples,)
+            Time series.
+        val_fraction : float, default=0.25
+            Fraction of samples reserved for validation.
+
+        Returns
+        -------
+        self : AutoKNN
+            Fitted tuner.
+
+        Raises
+        ------
+        ValueError
+            If too few samples for validation split.
+        RuntimeError
+            If no valid configuration is found.
         """
         y = np.asarray(y, dtype=float)
         N = len(y)
@@ -156,13 +240,6 @@ class AutoKNN:
         y_train, y_val = y[:split], y[split:]
         best_score = np.inf
         best_conf = None
-
-        # Simple error functions (define internally for convenience)
-        def mae(a, b):
-            return np.mean(np.abs(a - b))
-
-        def rmse(a, b):
-            return np.sqrt(np.mean((a - b) ** 2))
 
         # Grid search over window and k
         for L in self.window_grid:
@@ -210,9 +287,24 @@ class AutoKNN:
         self.best_ = {"config": best_conf, "val_score": best_score}
         return self
 
-    def predict(self, h):
+    def predict(self, h: int) -> np.ndarray:
         """
-        Forecast using the best-found KNNForecaster. `fit()` must be called first.
+        Forecast with the best tuned model.
+
+        Parameters
+        ----------
+        h : int
+            Forecast horizon.
+
+        Returns
+        -------
+        preds : ndarray of shape (h,)
+            Forecasted values.
+
+        Raises
+        ------
+        RuntimeError
+            If called before `fit()`.
         """
         if self.model_ is None:
             raise RuntimeError("AutoKNN is not fitted yet.")
