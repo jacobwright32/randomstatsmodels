@@ -275,28 +275,118 @@ print("Information by channel:", info)
 
 ## Benchmarks
 
-Comprehensive evaluation of all 13 models across 12 diverse time series datasets with 12-step ahead forecasting.
+Comprehensive evaluation of all 13 models across 12 real-world time series datasets with 12-step ahead forecasting.
 
 ### Overall Model Rankings
 
 | Model | Avg Rank | #1 Finishes | Top 3 Finishes |
 |-------|----------|-------------|----------------|
-| **AutoPolymath** | **4.4** | 2 | 6 |
-| AutoLocalLinear | 4.9 | 3 | 7 |
-| AutoNEO | 5.2 | 1 | 4 |
-| AutoMELD | 5.3 | 1 | 3 |
-| AutoNaive | 6.0 | 1 | 2 |
-| AutoSSA | 6.0 | 2 | 4 |
-| AutoHoltWinters | 6.7 | 1 | 2 |
-| AutoKNN | 7.5 | 0 | 3 |
-| AutoEnsemble | 8.5 | 0 | 1 |
-| AutoPALF | 8.8 | 1 | 1 |
-| AutoThetaAR | 8.8 | 0 | 1 |
-| AutoFourier | 9.1 | 0 | 1 |
-| AutoRIFT | 9.9 | 0 | 1 |
+| **AutoLocalLinear** | **5.2** | 4 | 5 |
+| AutoPolymath | 5.4 | 1 | 6 |
+| AutoNaive | 5.8 | 0 | 3 |
+| AutoNEO | 5.8 | 0 | 5 |
+| AutoSSA | 6.2 | 1 | 3 |
+| AutoMELD | 6.2 | 2 | 4 |
+| AutoKNN | 6.8 | 1 | 2 |
+| AutoThetaAR | 7.8 | 1 | 2 |
+| AutoHoltWinters | 7.9 | 0 | 1 |
+| AutoPALF | 8.0 | 1 | 1 |
+| AutoEnsemble | 8.2 | 0 | 1 |
+| AutoRIFT | 8.6 | 1 | 2 |
+| AutoFourier | 8.8 | 0 | 1 |
 
-### 1. Airline Passengers
-_Monthly airline passengers (1949-1960). Trend + multiplicative seasonality._
+### 1. US GDP Growth
+_Quarterly US GDP growth rate (1947-1960). Economic indicator._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoPolymath | 2.68 | 3.71 |
+| 2 | AutoFourier | 3.25 | 4.00 |
+| 3 | AutoNEO | 3.29 | 4.06 |
+
+### 2. US Unemployment
+_Monthly US unemployment rate (1948-1952). Labor market._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoThetaAR | 0.15 | 0.17 |
+| 2 | AutoNaive | 0.18 | 0.21 |
+| 3 | AutoEnsemble | 0.21 | 0.24 |
+
+### 3. Gold Prices
+_Monthly gold prices USD/oz (1979-1984). Commodity prices._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | **AutoRIFT** | **13.68** | **15.90** |
+| 2 | AutoHoltWinters | 16.55 | 19.04 |
+| 3 | AutoSSA | 22.83 | 26.73 |
+
+### 4. Electricity Production
+_Monthly US electricity production (1973-1978). Energy sector._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoMELD | 3.11 | 3.75 |
+| 2 | AutoNEO | 4.04 | 4.38 |
+| 3 | AutoPolymath | 4.48 | 4.86 |
+
+### 5. Wine Sales
+_Monthly Australian wine sales in litres (1980-1985). Retail._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoLocalLinear | 1689.65 | 2074.68 |
+| 2 | AutoNEO | 2194.88 | 2553.63 |
+| 3 | AutoPolymath | 2195.09 | 2554.02 |
+
+### 6. Lynx Trappings
+_Annual Canadian lynx trappings (1821-1900). Ecological cycles._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoKNN | 803.05 | 1158.40 |
+| 2 | AutoNaive | 835.83 | 1563.64 |
+| 3 | AutoThetaAR | 841.47 | 1566.57 |
+
+### 7. Lake Erie Level
+_Monthly Lake Erie water level (1921-1925). Environmental._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoLocalLinear | 0.27 | 0.32 |
+| 2 | AutoSSA | 0.27 | 0.35 |
+| 3 | AutoMELD | 0.39 | 0.45 |
+
+### 8. US Retail Sales
+_Monthly US retail sales index (1967-1971). Economic._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoMELD | 0.62 | 0.90 |
+| 2 | AutoPolymath | 0.62 | 0.76 |
+| 3 | AutoNEO | 0.82 | 1.07 |
+
+### 9. Australia Passengers
+_Monthly international passengers Australia (1991-1994). Travel._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoSSA | 85.23 | 97.95 |
+| 2 | AutoMELD | 96.81 | 113.58 |
+| 3 | AutoLocalLinear | 113.33 | 120.66 |
+
+### 10. Accidental Deaths
+_Monthly US accidental deaths (1973-1978). Public health._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoLocalLinear | 238.24 | 266.90 |
+| 2 | AutoNaive | 259.50 | 341.16 |
+| 3 | AutoKNN | 259.50 | 341.16 |
+
+### 11. Airline Passengers
+_Monthly airline passengers (1949-1960). Classic benchmark._
 
 | Rank | Model | MAE | RMSE |
 |------|-------|-----|------|
@@ -304,8 +394,8 @@ _Monthly airline passengers (1949-1960). Trend + multiplicative seasonality._
 | 2 | AutoPolymath | 14.39 | 17.44 |
 | 3 | AutoNEO | 15.85 | 18.89 |
 
-### 2. Sunspots
-_Monthly sunspot numbers. Cyclical, stationary._
+### 12. Sunspots
+_Monthly sunspot numbers. Astronomical cycles._
 
 | Rank | Model | MAE | RMSE |
 |------|-------|-----|------|
@@ -313,103 +403,14 @@ _Monthly sunspot numbers. Cyclical, stationary._
 | 2 | **AutoRIFT** | **5.73** | **8.05** |
 | 3 | AutoPolymath | 5.91 | 7.10 |
 
-### 3. Milk Production
-_Monthly milk production per cow (1962-1975). Trend + seasonality._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoNaive | 11.58 | 14.19 |
-| 2 | AutoKNN | 17.47 | 22.11 |
-| 3 | AutoLocalLinear | 31.88 | 32.67 |
-
-### 4. CO2 Mauna Loa
-_Monthly atmospheric CO2 (ppm). Strong trend + seasonality._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoSSA | 0.18 | 0.25 |
-| 2 | AutoHoltWinters | 0.20 | 0.22 |
-| 3 | AutoLocalLinear | 0.35 | 0.39 |
-
-### 5. Beer Production
-_Quarterly Australian beer production. Strong seasonality._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoMELD | 22.51 | 26.79 |
-| 2 | AutoLocalLinear | 28.33 | 35.06 |
-| 3 | AutoKNN | 29.13 | 33.32 |
-
-### 6. Car Sales
-_Monthly car sales Quebec (1960-1968). Trend + seasonality._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoLocalLinear | 1435.64 | 2096.46 |
-| 2 | AutoPolymath | 1462.57 | 1801.44 |
-| 3 | AutoKNN | 1585.77 | 2153.23 |
-
-### 7. Daily Temperature
-_Daily minimum temperatures (synthetic). Annual cycle + noise._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoNEO | 1.81 | 2.44 |
-| 2 | AutoLocalLinear | 1.82 | 2.34 |
-| 3 | AutoMELD | 1.84 | 2.51 |
-
-### 8. Synthetic Trend
-_Linear trend with Gaussian noise._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoLocalLinear | 1.68 | 2.55 |
-| 2 | AutoFourier | 1.68 | 2.56 |
-| 3 | AutoSSA | 1.71 | 2.54 |
-
-### 9. Multi-Seasonal
-_Synthetic daily data with weekly + yearly patterns._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoSSA | 2.52 | 3.13 |
-| 2 | AutoNaive | 5.06 | 6.07 |
-| 3 | AutoPolymath | 5.65 | 6.56 |
-
-### 10. Mackey-Glass
-_Chaotic time series (tau=17). Tests nonlinear dynamics._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoPolymath | 0.00 | 0.00 |
-| 2 | AutoNEO | 0.00 | 0.00 |
-| 3 | AutoMELD | 0.01 | 0.02 |
-
-### 11. Random Walk
-_Random walk with drift. Non-stationary._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoHoltWinters | 0.39 | 0.55 |
-| 2 | AutoThetaAR | 0.44 | 0.60 |
-| 3 | AutoEnsemble | 0.47 | 0.64 |
-
-### 12. Damped Sine
-_Exponentially damped oscillation._
-
-| Rank | Model | MAE | RMSE |
-|------|-------|-----|------|
-| 1 | AutoPolymath | 0.80 | 0.92 |
-| 2 | AutoNEO | 0.85 | 1.01 |
-| 3 | AutoSSA | 0.87 | 1.07 |
-
 ### Key Findings
 
-- **AutoPolymath** achieves the best average rank (4.4) with strong performance across diverse data types
-- **AutoLocalLinear** excels on trending data (3 first-place finishes)
-- **AutoRIFT** performs well on cyclical/stationary data (2nd place on Sunspots)
-- **AutoSSA** dominates multi-seasonal and smooth trend patterns
-- **AutoNEO/AutoPolymath** excel on chaotic dynamics (Mackey-Glass)
+- **AutoLocalLinear** achieves the best average rank (5.2) with 4 first-place finishes
+- **AutoPolymath** shows consistent top-3 performance (6 top-3 finishes)
+- **AutoRIFT** wins on Gold Prices and places 2nd on Sunspots - excels on financial/cyclical data
+- **AutoMELD** dominates on Electricity and Retail Sales
+- **AutoKNN** performs best on ecological cycles (Lynx Trappings)
+- **AutoSSA** excels on smooth seasonal patterns (Lake Erie, Australia Passengers)
 - No single model dominates all data types - model selection matters!
 
 ---

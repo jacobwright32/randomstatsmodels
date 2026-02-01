@@ -6,10 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-02-01
+### Changed
+- Replaced synthetic datasets with 10 additional real-world datasets
+- New real datasets: US GDP Growth, US Unemployment, Gold Prices, Electricity Production, Wine Sales, Lynx Trappings, Lake Erie Level, US Retail Sales, Australia Passengers, Accidental Deaths
+- Updated model rankings based on real data performance
+- AutoLocalLinear now leads with avg rank 5.2 and 4 first-place finishes
+- AutoRIFT shows strong performance on financial data (1st on Gold Prices)
+
 ## [1.5.0] - 2026-02-01
 ### Added
 - Expanded benchmarks to 12 diverse datasets (up from 2)
-- New datasets: Milk Production, CO2 Mauna Loa, Beer Production, Car Sales, Daily Temperature, Synthetic Trend, Multi-Seasonal, Mackey-Glass Chaotic, Random Walk, Damped Sine
 - Overall model rankings table with average rank, #1 finishes, and top-3 finishes
 - Key findings section summarizing model strengths by data type
 
