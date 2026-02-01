@@ -90,22 +90,22 @@ class FourierForecaster:
 
     def predict(self, h):
         """
-        Fit Fourier model coefficients via least squares.
+        Forecast future values using the fitted Fourier model.
 
         Parameters
         ----------
-        y : ndarray of shape (n_samples,)
-            Training time series.
+        h : int
+            Forecast horizon (number of steps ahead).
 
         Returns
         -------
-        self : FourierForecaster
-            Fitted model instance.
+        preds : ndarray of shape (h,)
+            Forecasted values.
 
         Raises
         ------
-        ValueError
-            If fewer than 3 data points are provided.
+        RuntimeError
+            If called before fit().
         """
 
         if self.coef_ is None or self.n_ is None:

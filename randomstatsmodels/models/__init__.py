@@ -13,15 +13,6 @@ from .local_linear import LocalLinearForecaster, AutoLocalLinear
 from .ensemble import EnsembleForecaster, AutoEnsemble
 from .rift import RIFTForecaster, AutoRIFT
 
-# Legacy models (NEED IMPROVEMENT)
-from .models_old import (
-    AutoSeasonalAR,
-    AutoRollingMedian,
-    AutoTrimmedMean,
-    AutoWindow,
-    AutoRankInsertion,
-)
-
 __all__ = [
     "HybridForecastNet",
     "AutoHybridForecaster",

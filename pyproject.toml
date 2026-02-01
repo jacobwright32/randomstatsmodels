@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "randomstatsmodels"
-version = "1.6.0"
+version = "1.6.1"
 description = "Tools for benchmarking, metrics, and models."
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -15,6 +15,9 @@ requires-python = ">=3.9"
 dependencies = [
   "numpy>=1.24"
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
 
 keywords = [
   "statistics",
