@@ -1,4 +1,4 @@
-__version__ = "1.1.2"
+__version__ = "1.3.0"
 
 from .benchmarking.benchmarking import benchmark_model, benchmark_models
 from .metrics import mae, mse, rmse, mape, smape
@@ -18,6 +18,18 @@ from .models import (
     AutoPolymath,
     FourierForecaster,
     AutoFourier,
+    NaiveForecaster,
+    AutoNaive,
+    HoltWintersForecaster,
+    AutoHoltWinters,
+    SSAForecaster,
+    AutoSSA,
+    LocalLinearForecaster,
+    AutoLocalLinear,
+    EnsembleForecaster,
+    AutoEnsemble,
+    RIFTForecaster,
+    AutoRIFT,
 )
 
 __all__ = [
@@ -41,6 +53,18 @@ __all__ = [
     "AutoPolymath",
     "FourierForecaster",
     "AutoFourier",
+    "NaiveForecaster",
+    "AutoNaive",
+    "HoltWintersForecaster",
+    "AutoHoltWinters",
+    "SSAForecaster",
+    "AutoSSA",
+    "LocalLinearForecaster",
+    "AutoLocalLinear",
+    "EnsembleForecaster",
+    "AutoEnsemble",
+    "RIFTForecaster",
+    "AutoRIFT",
     "benchmark_model",
     "benchmark_models",
 ]

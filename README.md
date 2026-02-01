@@ -150,6 +150,127 @@ print("Validation score:", palf.best_["val_score"])
 print("Prediction:", palf.predict(h))
 ```
 
+### AutoNaive
+
+Essential baseline forecasters for proper model evaluation.
+
+```python
+from randomstatsmodels import AutoNaive
+
+naive = AutoNaive(
+    method_options=("last", "seasonal", "drift", "mean"),
+    seasonal_periods=(1, 7, 12, 24),
+)
+naive.fit(y)
+print("Best config:", naive.best_["config"])
+print("Prediction:", naive.predict(h))
+```
+
+Methods:
+- `"last"`: Repeat the last observed value
+- `"seasonal"`: Repeat values from one seasonal period ago
+- `"drift"`: Linear extrapolation from first to last value
+- `"mean"`: Rolling or global mean
+
+### AutoHoltWinters
+
+Classic Holt-Winters exponential smoothing with level, trend, and seasonal components.
+
+```python
+from randomstatsmodels import AutoHoltWinters
+
+hw = AutoHoltWinters(
+    seasonal_periods=(12, 24),
+    trend_options=("add", "none", "damped"),
+    seasonal_options=("add", "none"),
+)
+hw.fit(y)
+print("Best config:", hw.best_["config"])
+print("Prediction:", hw.predict(h))
+```
+
+### AutoSSA
+
+Singular Spectrum Analysis - decomposes time series using SVD to discover adaptive oscillatory modes.
+
+```python
+from randomstatsmodels import AutoSSA
+
+ssa = AutoSSA(
+    window_fracs=(0.25, 0.33, 0.5),
+    n_components_grid=(None, 2, 4, 8),
+)
+ssa.fit(y)
+print("Best config:", ssa.best_["config"])
+print("Prediction:", ssa.predict(h))
+```
+
+### AutoLocalLinear
+
+Weighted local regression with exponential decay for older observations.
+
+```python
+from randomstatsmodels import AutoLocalLinear
+
+ll = AutoLocalLinear(
+    decay_grid=(0.9, 0.95, 0.98, 1.0),
+    degree_grid=(1, 2),
+)
+ll.fit(y)
+print("Best config:", ll.best_["config"])
+print("Prediction:", ll.predict(h))
+```
+
+### AutoEnsemble
+
+Combines multiple base forecasters with learned weights using validation performance.
+
+```python
+from randomstatsmodels import AutoEnsemble
+
+ensemble = AutoEnsemble(
+    weighting_options=("uniform", "validation", "optimal"),
+)
+ensemble.fit(y)
+print("Best config:", ensemble.best_["config"])
+print("Base model scores:", ensemble.base_scores_)
+print("Prediction:", ensemble.predict(h))
+```
+
+Weighting methods:
+- `"uniform"`: Equal weights for all models
+- `"validation"`: Weights inversely proportional to validation error
+- `"optimal"`: Solve for weights that minimize validation error
+
+### AutoRIFT (Novel: Recursive Information Flow Tensor)
+
+**A cutting-edge forecasting model based on original "Predictive Information Field Dynamics" theory.**
+
+RIFT introduces a fundamentally new paradigm: instead of modeling values directly, it models how *predictive information* flows and transforms between different temporal channels (level, trend, curvature, oscillations) as the forecast horizon increases.
+
+```python
+from randomstatsmodels import AutoRIFT
+
+rift = AutoRIFT(
+    n_frequencies_grid=(2, 4, 6),
+    embedding_dim_grid=(2, 3),
+    regularization_grid=(0.001, 0.01),
+)
+rift.fit(y)
+print("Best config:", rift.best_["config"])
+print("Prediction:", rift.predict(h))
+
+# Analyze which channels hold predictive information
+info = rift.get_information_analysis(horizon=5)
+print("Information by channel:", info)
+```
+
+**Theoretical Innovation:**
+- **Information Channels**: Decomposes predictive power into orthogonal channels (level, trend, curvature, spectral components)
+- **Information Flow Matrix**: Learns how information transfers between channels as horizon increases
+- **Fisher Information Estimation**: Uses local variance reduction to estimate channel informativeness
+- **Adaptive Reconstruction**: Combines channel extrapolations weighted by propagated information state
+
 ---
 
 ## Metrics
