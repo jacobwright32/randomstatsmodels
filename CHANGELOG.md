@@ -6,12 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-02-01
+### Added
+- Expanded benchmarks to 12 diverse datasets (up from 2)
+- New datasets: Milk Production, CO2 Mauna Loa, Beer Production, Car Sales, Daily Temperature, Synthetic Trend, Multi-Seasonal, Mackey-Glass Chaotic, Random Walk, Damped Sine
+- Overall model rankings table with average rank, #1 finishes, and top-3 finishes
+- Key findings section summarizing model strengths by data type
+
 ## [1.4.0] - 2026-02-01
 ### Added
-- Comprehensive benchmark results in README comparing all 13 models
+- Initial benchmark results in README comparing all 13 models
 - Benchmarks on Airline Passengers dataset (trend + seasonality)
 - Benchmarks on Sunspots dataset (cyclical, stationary)
-- Key findings: AutoRIFT excels on cyclical data (2nd place), AutoLocalLinear leads on trending data
 
 ## [1.3.0] - 2026-02-01
 ### Added

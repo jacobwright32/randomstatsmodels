@@ -275,53 +275,142 @@ print("Information by channel:", info)
 
 ## Benchmarks
 
-All models benchmarked on two classic time series datasets with 12-step ahead forecasting.
+Comprehensive evaluation of all 13 models across 12 diverse time series datasets with 12-step ahead forecasting.
 
-### Airline Passengers Dataset
+### Overall Model Rankings
 
-Monthly airline passenger numbers (1949-1960). Classic Box-Jenkins dataset with trend and seasonality.
+| Model | Avg Rank | #1 Finishes | Top 3 Finishes |
+|-------|----------|-------------|----------------|
+| **AutoPolymath** | **4.4** | 2 | 6 |
+| AutoLocalLinear | 4.9 | 3 | 7 |
+| AutoNEO | 5.2 | 1 | 4 |
+| AutoMELD | 5.3 | 1 | 3 |
+| AutoNaive | 6.0 | 1 | 2 |
+| AutoSSA | 6.0 | 2 | 4 |
+| AutoHoltWinters | 6.7 | 1 | 2 |
+| AutoKNN | 7.5 | 0 | 3 |
+| AutoEnsemble | 8.5 | 0 | 1 |
+| AutoPALF | 8.8 | 1 | 1 |
+| AutoThetaAR | 8.8 | 0 | 1 |
+| AutoFourier | 9.1 | 0 | 1 |
+| AutoRIFT | 9.9 | 0 | 1 |
 
-| Model | MAE | RMSE |
-|-------|-----|------|
-| AutoLocalLinear | 13.43 | 17.30 |
-| AutoPolymath | 14.39 | 17.44 |
-| AutoNEO | 15.85 | 18.89 |
-| AutoMELD | 24.98 | 29.53 |
-| AutoSSA | 36.20 | 43.06 |
-| AutoHoltWinters | 45.02 | 60.23 |
-| AutoNaive | 47.83 | 50.71 |
-| AutoFourier | 58.66 | 78.82 |
-| AutoPALF | 60.07 | 83.03 |
-| AutoKNN | 60.32 | 65.23 |
-| AutoEnsemble | 61.47 | 85.20 |
-| AutoThetaAR | 66.77 | 93.18 |
-| AutoRIFT | 130.64 | 155.99 |
+### 1. Airline Passengers
+_Monthly airline passengers (1949-1960). Trend + multiplicative seasonality._
 
-### Sunspots Dataset
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoLocalLinear | 13.43 | 17.30 |
+| 2 | AutoPolymath | 14.39 | 17.44 |
+| 3 | AutoNEO | 15.85 | 18.89 |
 
-Monthly sunspot numbers. Classic cyclical dataset without strong trend.
+### 2. Sunspots
+_Monthly sunspot numbers. Cyclical, stationary._
 
-| Model | MAE | RMSE |
-|-------|-----|------|
-| AutoPALF | 5.65 | 7.05 |
-| **AutoRIFT** | **5.73** | **8.05** |
-| AutoPolymath | 5.91 | 7.10 |
-| AutoNEO | 6.95 | 8.23 |
-| AutoThetaAR | 7.40 | 8.51 |
-| AutoNaive | 9.74 | 10.86 |
-| AutoMELD | 12.15 | 13.96 |
-| AutoEnsemble | 12.20 | 13.58 |
-| AutoSSA | 13.85 | 16.08 |
-| AutoKNN | 14.55 | 17.38 |
-| AutoFourier | 18.37 | 19.73 |
-| AutoHoltWinters | 24.32 | 25.84 |
-| AutoLocalLinear | 30.30 | 32.70 |
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoPALF | 5.65 | 7.05 |
+| 2 | **AutoRIFT** | **5.73** | **8.05** |
+| 3 | AutoPolymath | 5.91 | 7.10 |
 
-**Key Observations:**
-- **AutoLocalLinear** excels on trending data (Airline Passengers)
-- **AutoRIFT** performs excellently on cyclical/stationary data (Sunspots, 2nd place)
-- **AutoPALF** and **AutoPolymath** show consistent performance across both datasets
-- Model performance varies significantly by data characteristics - no single model dominates
+### 3. Milk Production
+_Monthly milk production per cow (1962-1975). Trend + seasonality._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoNaive | 11.58 | 14.19 |
+| 2 | AutoKNN | 17.47 | 22.11 |
+| 3 | AutoLocalLinear | 31.88 | 32.67 |
+
+### 4. CO2 Mauna Loa
+_Monthly atmospheric CO2 (ppm). Strong trend + seasonality._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoSSA | 0.18 | 0.25 |
+| 2 | AutoHoltWinters | 0.20 | 0.22 |
+| 3 | AutoLocalLinear | 0.35 | 0.39 |
+
+### 5. Beer Production
+_Quarterly Australian beer production. Strong seasonality._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoMELD | 22.51 | 26.79 |
+| 2 | AutoLocalLinear | 28.33 | 35.06 |
+| 3 | AutoKNN | 29.13 | 33.32 |
+
+### 6. Car Sales
+_Monthly car sales Quebec (1960-1968). Trend + seasonality._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoLocalLinear | 1435.64 | 2096.46 |
+| 2 | AutoPolymath | 1462.57 | 1801.44 |
+| 3 | AutoKNN | 1585.77 | 2153.23 |
+
+### 7. Daily Temperature
+_Daily minimum temperatures (synthetic). Annual cycle + noise._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoNEO | 1.81 | 2.44 |
+| 2 | AutoLocalLinear | 1.82 | 2.34 |
+| 3 | AutoMELD | 1.84 | 2.51 |
+
+### 8. Synthetic Trend
+_Linear trend with Gaussian noise._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoLocalLinear | 1.68 | 2.55 |
+| 2 | AutoFourier | 1.68 | 2.56 |
+| 3 | AutoSSA | 1.71 | 2.54 |
+
+### 9. Multi-Seasonal
+_Synthetic daily data with weekly + yearly patterns._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoSSA | 2.52 | 3.13 |
+| 2 | AutoNaive | 5.06 | 6.07 |
+| 3 | AutoPolymath | 5.65 | 6.56 |
+
+### 10. Mackey-Glass
+_Chaotic time series (tau=17). Tests nonlinear dynamics._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoPolymath | 0.00 | 0.00 |
+| 2 | AutoNEO | 0.00 | 0.00 |
+| 3 | AutoMELD | 0.01 | 0.02 |
+
+### 11. Random Walk
+_Random walk with drift. Non-stationary._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoHoltWinters | 0.39 | 0.55 |
+| 2 | AutoThetaAR | 0.44 | 0.60 |
+| 3 | AutoEnsemble | 0.47 | 0.64 |
+
+### 12. Damped Sine
+_Exponentially damped oscillation._
+
+| Rank | Model | MAE | RMSE |
+|------|-------|-----|------|
+| 1 | AutoPolymath | 0.80 | 0.92 |
+| 2 | AutoNEO | 0.85 | 1.01 |
+| 3 | AutoSSA | 0.87 | 1.07 |
+
+### Key Findings
+
+- **AutoPolymath** achieves the best average rank (4.4) with strong performance across diverse data types
+- **AutoLocalLinear** excels on trending data (3 first-place finishes)
+- **AutoRIFT** performs well on cyclical/stationary data (2nd place on Sunspots)
+- **AutoSSA** dominates multi-seasonal and smooth trend patterns
+- **AutoNEO/AutoPolymath** excel on chaotic dynamics (Mackey-Glass)
+- No single model dominates all data types - model selection matters!
 
 ---
 
