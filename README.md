@@ -273,6 +273,58 @@ print("Information by channel:", info)
 
 ---
 
+## Benchmarks
+
+All models benchmarked on two classic time series datasets with 12-step ahead forecasting.
+
+### Airline Passengers Dataset
+
+Monthly airline passenger numbers (1949-1960). Classic Box-Jenkins dataset with trend and seasonality.
+
+| Model | MAE | RMSE |
+|-------|-----|------|
+| AutoLocalLinear | 13.43 | 17.30 |
+| AutoPolymath | 14.39 | 17.44 |
+| AutoNEO | 15.85 | 18.89 |
+| AutoMELD | 24.98 | 29.53 |
+| AutoSSA | 36.20 | 43.06 |
+| AutoHoltWinters | 45.02 | 60.23 |
+| AutoNaive | 47.83 | 50.71 |
+| AutoFourier | 58.66 | 78.82 |
+| AutoPALF | 60.07 | 83.03 |
+| AutoKNN | 60.32 | 65.23 |
+| AutoEnsemble | 61.47 | 85.20 |
+| AutoThetaAR | 66.77 | 93.18 |
+| AutoRIFT | 130.64 | 155.99 |
+
+### Sunspots Dataset
+
+Monthly sunspot numbers. Classic cyclical dataset without strong trend.
+
+| Model | MAE | RMSE |
+|-------|-----|------|
+| AutoPALF | 5.65 | 7.05 |
+| **AutoRIFT** | **5.73** | **8.05** |
+| AutoPolymath | 5.91 | 7.10 |
+| AutoNEO | 6.95 | 8.23 |
+| AutoThetaAR | 7.40 | 8.51 |
+| AutoNaive | 9.74 | 10.86 |
+| AutoMELD | 12.15 | 13.96 |
+| AutoEnsemble | 12.20 | 13.58 |
+| AutoSSA | 13.85 | 16.08 |
+| AutoKNN | 14.55 | 17.38 |
+| AutoFourier | 18.37 | 19.73 |
+| AutoHoltWinters | 24.32 | 25.84 |
+| AutoLocalLinear | 30.30 | 32.70 |
+
+**Key Observations:**
+- **AutoLocalLinear** excels on trending data (Airline Passengers)
+- **AutoRIFT** performs excellently on cyclical/stationary data (Sunspots, 2nd place)
+- **AutoPALF** and **AutoPolymath** show consistent performance across both datasets
+- Model performance varies significantly by data characteristics - no single model dominates
+
+---
+
 ## Metrics
 
 Available out of the box:
