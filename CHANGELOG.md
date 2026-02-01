@@ -6,6 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-02-01
+### Added
+- Comprehensive benchmark results in README comparing all 13 models
+- Benchmarks on Airline Passengers dataset (trend + seasonality)
+- Benchmarks on Sunspots dataset (cyclical, stationary)
+- Key findings: AutoRIFT excels on cyclical data (2nd place), AutoLocalLinear leads on trending data
+
+## [1.3.0] - 2026-02-01
+### Added
+- **AutoRIFT**: Novel "Recursive Information Flow Tensor" forecaster based on original "Predictive Information Field Dynamics" theory
+  - Models how predictive information flows between temporal channels (level, trend, curvature, oscillations)
+  - Learns Information Flow Matrix to capture channel dynamics across forecast horizons
+  - Uses Fisher Information estimation for channel weighting
+- **AutoNaive**: Essential baseline forecasters (last, seasonal, drift, mean methods)
+- **AutoHoltWinters**: Classic Holt-Winters exponential smoothing with level, trend, and seasonal components
+- **AutoSSA**: Singular Spectrum Analysis via SVD decomposition for adaptive oscillatory modes
+- **AutoLocalLinear**: Weighted local regression with exponential decay for older observations
+- **AutoEnsemble**: Model stacking with learned weights (uniform, validation, optimal weighting)
+
+## [1.2.0] - 2026-02-01
+### Added
+- Initial implementation of 5 new forecasting models (released alongside 1.3.0)
+
 ## [0.1.0] - 2025-08-26
 ### Added
 - Initial release of `randomstatsmodels`.
