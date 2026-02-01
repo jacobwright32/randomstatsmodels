@@ -16,9 +16,6 @@ dependencies = [
   "numpy>=1.24"
 ]
 
-[project.optional-dependencies]
-dev = ["pytest>=7.0"]
-
 keywords = [
   "statistics",
   "metrics",
@@ -44,6 +41,9 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Operating System :: OS Independent"
 ]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
 
 [tool.setuptools.packages.find]
 where = ["."]
