@@ -6,6 +6,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-02-01
+### Added
+- Unit test suite with pytest (tests/test_models.py, tests/test_metrics.py)
+- Test coverage for all 13 Auto* tuners and base forecasters
+- Test coverage for all 5 error metrics (MAE, MSE, RMSE, MAPE, SMAPE)
+- pytest as optional dev dependency (`pip install randomstatsmodels[dev]`)
+
+### Fixed
+- Removed dead code in models_old.py (1,135 lines of legacy models)
+- Fixed FourierForecaster.predict() docstring (was incorrectly copied from fit())
+
+### Changed
+- Cleaned up models/__init__.py by removing legacy model imports
+
 ## [1.6.0] - 2026-02-01
 ### Changed
 - Replaced synthetic datasets with 10 additional real-world datasets
