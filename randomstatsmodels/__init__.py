@@ -1,4 +1,4 @@
-__version__ = "1.6.1"
+__version__ = "2.0.0"
 
 from .benchmarking.benchmarking import benchmark_model, benchmark_models
 from .metrics import mae, mse, rmse, mape, smape
@@ -30,6 +30,18 @@ from .models import (
     AutoEnsemble,
     RIFTForecaster,
     AutoRIFT,
+    FracDiffForecaster,
+    AutoFracDiff,
+    SpectralGradientForecaster,
+    AutoSpectralGradient,
+    GreensKernelForecaster,
+    AutoGreensKernel,
+    PDEFieldForecaster,
+    AutoPDEField,
+    VariationalPathForecaster,
+    AutoVariationalPath,
+    KoopmanForecaster,
+    AutoKoopman,
 )
 
 __all__ = [
@@ -65,6 +77,18 @@ __all__ = [
     "AutoEnsemble",
     "RIFTForecaster",
     "AutoRIFT",
+    "FracDiffForecaster",
+    "AutoFracDiff",
+    "SpectralGradientForecaster",
+    "AutoSpectralGradient",
+    "GreensKernelForecaster",
+    "AutoGreensKernel",
+    "PDEFieldForecaster",
+    "AutoPDEField",
+    "VariationalPathForecaster",
+    "AutoVariationalPath",
+    "KoopmanForecaster",
+    "AutoKoopman",
     "benchmark_model",
     "benchmark_models",
 ]

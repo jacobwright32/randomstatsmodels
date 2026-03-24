@@ -12,6 +12,12 @@ from .ssa import SSAForecaster, AutoSSA
 from .local_linear import LocalLinearForecaster, AutoLocalLinear
 from .ensemble import EnsembleForecaster, AutoEnsemble
 from .rift import RIFTForecaster, AutoRIFT
+from .fracdiff import FracDiffForecaster, AutoFracDiff
+from .spectral_gradient import SpectralGradientForecaster, AutoSpectralGradient
+from .greens_kernel import GreensKernelForecaster, AutoGreensKernel
+from .pde_field import PDEFieldForecaster, AutoPDEField
+from .variational_path import VariationalPathForecaster, AutoVariationalPath
+from .koopman import KoopmanForecaster, AutoKoopman
 
 __all__ = [
     "HybridForecastNet",
@@ -41,4 +47,16 @@ __all__ = [
     "AutoEnsemble",
     "RIFTForecaster",
     "AutoRIFT",
+    "FracDiffForecaster",
+    "AutoFracDiff",
+    "SpectralGradientForecaster",
+    "AutoSpectralGradient",
+    "GreensKernelForecaster",
+    "AutoGreensKernel",
+    "PDEFieldForecaster",
+    "AutoPDEField",
+    "VariationalPathForecaster",
+    "AutoVariationalPath",
+    "KoopmanForecaster",
+    "AutoKoopman",
 ]

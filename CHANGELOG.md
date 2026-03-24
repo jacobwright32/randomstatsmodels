@@ -6,6 +6,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-03-24
+### Added
+- **6 new forecasting models** based on advanced calculus and dynamical systems:
+  - **AutoKoopman**: Dynamic Mode Decomposition / Koopman operator via delay embedding — ranks #4 overall
+  - **AutoFracDiff**: Fractional calculus forecaster using Grunwald-Letnikov fractional derivatives
+  - **AutoSpectralGradient**: Spectral derivative flow — extrapolates Fourier mode dynamics
+  - **AutoGreensKernel**: Integral equation forecaster via Green's function convolution kernels
+  - **AutoPDEField**: PDE-based forecaster — advection-diffusion on a time-scale field
+  - **AutoVariationalPath**: Calculus of variations — Euler-Lagrange optimal forecast path
+- **36 real-world benchmark datasets** (`benchmarking/datasets.py`) across 11 challenge categories
+- **Comprehensive evaluation framework** (`benchmarking/evaluation.py`) with 7 metrics (MAE, RMSE, MAPE, sMAPE, MASE, MSSE, Median AE), per-dataset rankings, model summary tables, and CSV export
+- Benchmark runner script (`examples/comprehensive_benchmark.py`)
+- Test suite for all 6 new models and the benchmark infrastructure (64 new tests)
+
+### Changed
+- Total model count: 13 → 19 Auto* forecasters
+- Benchmark scope: 12 → 36 real-world datasets
+- Summary statistics now use **median** instead of mean for raw metric aggregation
+- Updated README with full 19-model ranking table and dataset coverage
+
 ## [1.6.1] - 2026-02-01
 ### Added
 - Unit test suite with pytest (tests/test_models.py, tests/test_metrics.py)

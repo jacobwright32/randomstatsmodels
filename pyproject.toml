@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "randomstatsmodels"
-version = "1.6.1"
-description = "Tools for benchmarking, metrics, and models."
+version = "2.0.0"
+description = "Lightweight univariate time-series forecasting with auto-tuned models — NumPy only."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [
