@@ -1,10 +1,10 @@
 # randomstatsmodels
 
-Lightweight Python package for univariate time-series forecasting with 19 auto-tuned models — NumPy only.
+Lightweight Python package for univariate time-series forecasting with 22 auto-tuned models — NumPy only.
 
 ## Project overview
 
-- **Package**: `randomstatsmodels` (PyPI), currently v2.0.0
+- **Package**: `randomstatsmodels` (PyPI), currently v3.0.0
 - **Author**: Jacob Wright
 - **License**: MIT
 - **Python**: 3.9+
@@ -38,6 +38,7 @@ randomstatsmodels/
     pde_field.py           # PDEFieldForecaster / AutoPDEField
     variational_path.py    # VariationalPathForecaster / AutoVariationalPath
     koopman.py             # KoopmanForecaster / AutoKoopman
+    ensemble_advanced.py   # AutoStacked, AutoBagged, AutoDynamic
     model_utils.py         # Shared model utilities
   benchmarking/
     benchmarking.py        # benchmark_model(), benchmark_models()

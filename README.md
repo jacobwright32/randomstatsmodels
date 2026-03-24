@@ -84,24 +84,34 @@ print("Best config:", model.best_)
 | `AutoRIFT` | Recursive Information Flow Tensor — information-channel dynamics |
 | `AutoEnsemble` | Combines multiple base forecasters with learned weights |
 
+### Advanced Ensembles
+
+| Model | Description |
+|-------|-------------|
+| `AutoStacked` | Meta-learner stacking — ridge regression on base model predictions |
+| `AutoBagged` | Block-bootstrap bagging — median of models trained on resampled series |
+| `AutoDynamic` | Horizon-adaptive weighting — model weights change per forecast step |
+
 ---
 
 ## Benchmarks
 
-All 19 models evaluated on **36 real-world time series** (20% holdout), ranked by MAE.
+All 22 models evaluated on **36 real-world time series** (20% holdout), ranked by MAE.
 
 ### Overall Rankings
 
 | Rank | Model | Avg Rank | #1st | #Top3 | Mdn sMAPE |
 |------|-------|----------|------|-------|-----------|
-| 1 | AutoHybridForecaster | 5.56 | 3 | 12 | 8.92% |
-| 2 | AutoPolymath | 6.14 | 5 | 12 | 9.54% |
-| 3 | AutoNEO | 6.56 | 2 | 12 | 13.57% |
-| 4 | **AutoKoopman** | **6.81** | **4** | **9** | **13.00%** |
-| 5 | AutoSSA | 8.03 | 3 | 11 | 10.80% |
-| 6 | AutoKNN | 8.68 | 4 | 9 | 11.74% |
-| 7 | AutoNaive | 8.75 | 2 | 6 | 12.56% |
-| 8 | AutoLocalLinear | 8.94 | 2 | 6 | 13.30% |
+| 1 | AutoDynamic | 4.31 | 5 | 16 | 12.01% |
+| 2 | AutoHybridForecaster | 5.56 | 3 | 12 | 8.92% |
+| 3 | AutoPolymath | 6.14 | 5 | 12 | 9.54% |
+| 4 | AutoNEO | 6.56 | 2 | 12 | 13.57% |
+| 5 | AutoKoopman | 6.81 | 4 | 9 | 13.00% |
+| 6 | AutoSSA | 8.03 | 3 | 11 | 10.80% |
+| 7 | AutoBagged | 8.50 | 2 | 8 | 24.07% |
+| 8 | AutoKNN | 8.68 | 4 | 9 | 11.74% |
+| 9 | AutoNaive | 8.75 | 2 | 6 | 12.56% |
+| 10 | AutoLocalLinear | 8.94 | 2 | 6 | 13.30% |
 | 9 | AutoFourier | 9.67 | 2 | 6 | 18.93% |
 | 10 | AutoMELD | 9.85 | 0 | 6 | 12.79% |
 | 11 | AutoGreensKernel | 9.89 | 4 | 4 | 17.46% |
@@ -134,10 +144,11 @@ All 19 models evaluated on **36 real-world time series** (20% holdout), ranked b
 
 ### Key Findings
 
-- **AutoHybridForecaster** leads overall — linear decomposition + GRU residuals, but slowest to fit
-- **AutoPolymath** is the best fast model — polynomial + Fourier features with ridge regression
-- **AutoKoopman** (new) is #4 overall — Koopman/DMD eigenvalue propagation, extremely fast
-- **AutoGreensKernel** (new) gets the most 1st-place wins (4) among calculus-based models
+- **AutoDynamic** (new) leads overall — horizon-adaptive ensemble that reweights models per forecast step
+- **AutoHybridForecaster** is the best single model — linear decomposition + GRU residuals
+- **AutoPolymath** is the best fast single model — polynomial + Fourier features with ridge regression
+- **AutoKoopman** is #5 overall — Koopman/DMD eigenvalue propagation, extremely fast
+- **AutoBagged** is the most robust ensemble — block-bootstrap reduces variance
 - **No single model dominates** — model selection matters for your data type
 
 ### Benchmarking Your Own Data

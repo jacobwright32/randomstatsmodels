@@ -26,6 +26,9 @@ from randomstatsmodels import (
     AutoVariationalPath,
     KoopmanForecaster,
     AutoKoopman,
+    AutoStacked,
+    AutoBagged,
+    AutoDynamic,
 )
 
 
@@ -422,6 +425,117 @@ class TestAutoKoopman:
 
     def test_predict_before_fit_raises(self):
         m = AutoKoopman()
+        with pytest.raises(RuntimeError):
+            m.predict(5)
+
+
+# ===================================================================
+# AutoStacked
+# ===================================================================
+
+class TestAutoStacked:
+    def test_instantiation(self):
+        m = AutoStacked()
+        assert m.model_ is None
+
+    def test_fit_returns_self(self, synthetic_data):
+        from randomstatsmodels import AutoNaive, AutoFourier
+        pool = [(AutoNaive, {}), (AutoFourier, {})]
+        m = AutoStacked(base_pool=pool, ridge_grid=(1.0,))
+        result = m.fit(synthetic_data)
+        assert result is m
+
+    def test_best_populated(self, synthetic_data):
+        from randomstatsmodels import AutoNaive, AutoFourier
+        pool = [(AutoNaive, {}), (AutoFourier, {})]
+        m = AutoStacked(base_pool=pool, ridge_grid=(1.0,))
+        m.fit(synthetic_data)
+        assert m.best_ is not None
+        assert "config" in m.best_
+
+    def test_predict_shape(self, synthetic_data, forecast_horizon):
+        from randomstatsmodels import AutoNaive, AutoFourier
+        pool = [(AutoNaive, {}), (AutoFourier, {})]
+        m = AutoStacked(base_pool=pool, ridge_grid=(1.0,))
+        m.fit(synthetic_data)
+        preds = m.predict(forecast_horizon)
+        assert preds.shape == (forecast_horizon,)
+
+    def test_predict_before_fit_raises(self):
+        m = AutoStacked()
+        with pytest.raises(RuntimeError):
+            m.predict(5)
+
+
+# ===================================================================
+# AutoBagged
+# ===================================================================
+
+class TestAutoBagged:
+    def test_instantiation(self):
+        m = AutoBagged()
+        assert m.model_ is None
+
+    def test_fit_returns_self(self, synthetic_data):
+        from randomstatsmodels import AutoNaive
+        m = AutoBagged(model_class=AutoNaive, n_bags=3)
+        result = m.fit(synthetic_data)
+        assert result is m
+
+    def test_best_populated(self, synthetic_data):
+        from randomstatsmodels import AutoNaive
+        m = AutoBagged(model_class=AutoNaive, n_bags=3)
+        m.fit(synthetic_data)
+        assert m.best_ is not None
+        assert "config" in m.best_
+
+    def test_predict_shape(self, synthetic_data, forecast_horizon):
+        from randomstatsmodels import AutoNaive
+        m = AutoBagged(model_class=AutoNaive, n_bags=3)
+        m.fit(synthetic_data)
+        preds = m.predict(forecast_horizon)
+        assert preds.shape == (forecast_horizon,)
+
+    def test_predict_before_fit_raises(self):
+        m = AutoBagged()
+        with pytest.raises(RuntimeError):
+            m.predict(5)
+
+
+# ===================================================================
+# AutoDynamic
+# ===================================================================
+
+class TestAutoDynamic:
+    def test_instantiation(self):
+        m = AutoDynamic()
+        assert m.model_ is None
+
+    def test_fit_returns_self(self, synthetic_data):
+        from randomstatsmodels import AutoNaive, AutoFourier
+        pool = [(AutoNaive, {}), (AutoFourier, {})]
+        m = AutoDynamic(base_pool=pool)
+        result = m.fit(synthetic_data)
+        assert result is m
+
+    def test_best_populated(self, synthetic_data):
+        from randomstatsmodels import AutoNaive, AutoFourier
+        pool = [(AutoNaive, {}), (AutoFourier, {})]
+        m = AutoDynamic(base_pool=pool)
+        m.fit(synthetic_data)
+        assert m.best_ is not None
+        assert "config" in m.best_
+
+    def test_predict_shape(self, synthetic_data, forecast_horizon):
+        from randomstatsmodels import AutoNaive, AutoFourier
+        pool = [(AutoNaive, {}), (AutoFourier, {})]
+        m = AutoDynamic(base_pool=pool)
+        m.fit(synthetic_data)
+        preds = m.predict(forecast_horizon)
+        assert preds.shape == (forecast_horizon,)
+
+    def test_predict_before_fit_raises(self):
+        m = AutoDynamic()
         with pytest.raises(RuntimeError):
             m.predict(5)
 

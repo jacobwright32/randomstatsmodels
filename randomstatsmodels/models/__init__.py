@@ -18,6 +18,11 @@ from .greens_kernel import GreensKernelForecaster, AutoGreensKernel
 from .pde_field import PDEFieldForecaster, AutoPDEField
 from .variational_path import VariationalPathForecaster, AutoVariationalPath
 from .koopman import KoopmanForecaster, AutoKoopman
+from .ensemble_advanced import (
+    StackedForecaster, AutoStacked,
+    BaggedForecaster, AutoBagged,
+    DynamicEnsemble, AutoDynamic,
+)
 
 __all__ = [
     "HybridForecastNet",
@@ -59,4 +64,10 @@ __all__ = [
     "AutoVariationalPath",
     "KoopmanForecaster",
     "AutoKoopman",
+    "StackedForecaster",
+    "AutoStacked",
+    "BaggedForecaster",
+    "AutoBagged",
+    "DynamicEnsemble",
+    "AutoDynamic",
 ]

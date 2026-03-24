@@ -1,4 +1,4 @@
-__version__ = "2.0.0"
+__version__ = "3.0.0"
 
 from .benchmarking.benchmarking import benchmark_model, benchmark_models
 from .metrics import mae, mse, rmse, mape, smape
@@ -42,6 +42,12 @@ from .models import (
     AutoVariationalPath,
     KoopmanForecaster,
     AutoKoopman,
+    StackedForecaster,
+    AutoStacked,
+    BaggedForecaster,
+    AutoBagged,
+    DynamicEnsemble,
+    AutoDynamic,
 )
 
 __all__ = [
@@ -89,6 +95,12 @@ __all__ = [
     "AutoVariationalPath",
     "KoopmanForecaster",
     "AutoKoopman",
+    "StackedForecaster",
+    "AutoStacked",
+    "BaggedForecaster",
+    "AutoBagged",
+    "DynamicEnsemble",
+    "AutoDynamic",
     "benchmark_model",
     "benchmark_models",
 ]

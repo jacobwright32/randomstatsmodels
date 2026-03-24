@@ -6,6 +6,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.0] - 2026-03-24
+### Added
+- **3 advanced ensemble forecasters**:
+  - **AutoStacked**: Meta-learner stacking — base models' predictions become features for a ridge meta-learner
+  - **AutoBagged**: Block-bootstrap bagging — fits same model on resampled series, combines via median
+  - **AutoDynamic**: Horizon-adaptive ensemble — model weights vary per forecast step based on horizon-specific accuracy
+- AutoDynamic ranks **#1 overall** across 36 datasets with median sMAPE of 12.01%
+- Tests for all 3 new ensemble models
+
+### Changed
+- Total model count: 19 → 22 Auto* forecasters
+- Updated README with full 22-model ranking table
+
 ## [2.0.0] - 2026-03-24
 ### Added
 - **6 new forecasting models** based on advanced calculus and dynamical systems:
