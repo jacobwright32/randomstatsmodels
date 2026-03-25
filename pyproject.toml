@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "randomstatsmodels"
-version = "3.3.0"
+version = "3.3.1"
 description = "Lightweight univariate time-series forecasting with auto-tuned models — NumPy only."
 readme = "README.md"
 license = { file = "LICENSE" }
