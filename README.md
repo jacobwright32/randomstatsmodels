@@ -100,35 +100,35 @@ All 27 models evaluated on **36 real-world time series** (20% holdout), ranked b
 
 ### Overall Rankings
 
-| Rank | Model | Type | Avg Rank | #1st | #Top3 | Mdn sMAPE |
-|------|-------|------|----------|------|-------|-----------|
-| 1 | SF_AutoARIMA | statsforecast | 8.36 | 4 | 9 | 6.43% |
-| 2 | AutoHybridForecaster | randomstatsmodels | 8.44 | 0 | 9 | 8.92% |
-| 3 | AutoPolymath | randomstatsmodels | 9.28 | 2 | 8 | 9.54% |
-| 4 | SF_AutoTBATS | statsforecast | 9.56 | 1 | 7 | 10.71% |
-| 5 | AutoNEO | randomstatsmodels | 9.85 | 1 | 8 | 13.57% |
-| 6 | AutoKoopman | randomstatsmodels | 10.31 | 3 | 5 | 13.00% |
-| 7 | AutoDynamic | ensemble | 10.50 | 2 | 4 | 12.01% |
-| 8 | SF_AutoCES | statsforecast | 10.56 | 4 | 9 | 10.27% |
-| 9 | SF_AutoETS | statsforecast | 11.67 | 1 | 2 | 11.46% |
-| 10 | AutoSSA | randomstatsmodels | 11.97 | 2 | 4 | 10.80% |
-| 11 | AutoKNN | randomstatsmodels | 12.82 | 2 | 9 | 11.74% |
-| 12 | AutoNaive | randomstatsmodels | 12.83 | 2 | 3 | 12.56% |
-| 13 | SF_AutoTheta | statsforecast | 12.86 | 1 | 4 | 12.23% |
-| 14 | AutoLocalLinear | randomstatsmodels | 13.58 | 2 | 3 | 13.30% |
-| 15 | AutoFourier | randomstatsmodels | 14.19 | 2 | 4 | 18.93% |
-| 16 | AutoMELD | randomstatsmodels | 14.32 | 1 | 3 | 13.88% |
-| 17 | AutoGreensKernel | randomstatsmodels | 14.33 | 2 | 4 | 17.46% |
-| 18 | AutoPALF | randomstatsmodels | 15.14 | 2 | 2 | 13.89% |
-| 19 | AutoThetaAR | randomstatsmodels | 15.47 | 0 | 1 | 24.03% |
-| 20 | AutoBagged | ensemble | 16.31 | 1 | 4 | 24.07% |
-| 21 | AutoPDEField | randomstatsmodels | 16.89 | 0 | 2 | 23.29% |
-| 22 | AutoSpectralGradient | randomstatsmodels | 17.19 | 0 | 1 | 16.28% |
-| 23 | AutoHoltWinters | randomstatsmodels | 17.86 | 1 | 2 | 23.47% |
-| 24 | AutoVariationalPath | randomstatsmodels | 18.28 | 0 | 1 | 18.16% |
-| 25 | AutoRIFT | randomstatsmodels | 19.06 | 0 | 0 | 29.67% |
-| 26 | AutoStacked | ensemble | 20.06 | 0 | 0 | 46.70% |
-| 27 | AutoFracDiff | randomstatsmodels | 23.58 | 0 | 0 | 88.03% |
+| Rank | Model | Type | Avg Rank | #1st | #Top3 | Median sMAPE |
+|------|-------|------|----------|------|-------|-------------|
+| 1 | SF_AutoARIMA | statsforecast | 8.25 | 4 | 9 | 6.43% |
+| 2 | AutoHybridForecaster | randomstatsmodels | 8.28 | 1 | 8 | 8.92% |
+| 3 | AutoPolymath | randomstatsmodels | 9.08 | 2 | 9 | 9.54% |
+| 4 | SF_AutoTBATS | statsforecast | 9.39 | 1 | 7 | 10.71% |
+| 5 | AutoNEO | randomstatsmodels | 9.68 | 1 | 8 | 13.57% |
+| 6 | AutoKoopman | randomstatsmodels | 10.11 | 3 | 5 | 13.00% |
+| 7 | SF_AutoCES | statsforecast | 10.47 | 4 | 9 | 10.27% |
+| 8 | AutoDynamic | ensemble | 10.97 | 0 | 4 | 13.75% |
+| 9 | SF_AutoETS | statsforecast | 11.50 | 1 | 2 | 11.46% |
+| 10 | AutoSSA | randomstatsmodels | 11.78 | 2 | 4 | 10.80% |
+| 11 | SF_AutoTheta | statsforecast | 12.64 | 1 | 4 | 12.23% |
+| 12 | AutoNaive | randomstatsmodels | 12.67 | 2 | 3 | 12.56% |
+| 13 | AutoKNN | randomstatsmodels | 12.68 | 2 | 9 | 11.74% |
+| 14 | AutoLocalLinear | randomstatsmodels | 13.25 | 2 | 3 | 13.30% |
+| 15 | AutoFourier | randomstatsmodels | 14.03 | 2 | 4 | 18.93% |
+| 16 | AutoGreensKernel | randomstatsmodels | 14.11 | 3 | 4 | 17.46% |
+| 17 | AutoMELD | randomstatsmodels | 14.18 | 1 | 3 | 13.88% |
+| 18 | AutoPALF | randomstatsmodels | 14.97 | 2 | 2 | 13.89% |
+| 19 | AutoThetaAR | randomstatsmodels | 15.14 | 0 | 1 | 24.03% |
+| 20 | AutoBagged | ensemble | 16.08 | 1 | 4 | 24.07% |
+| 21 | AutoPDEField | randomstatsmodels | 16.50 | 0 | 2 | 23.29% |
+| 22 | AutoSpectralGradient | randomstatsmodels | 16.89 | 0 | 1 | 16.28% |
+| 23 | AutoHoltWinters | randomstatsmodels | 17.64 | 1 | 2 | 23.47% |
+| 24 | AutoVariationalPath | randomstatsmodels | 17.92 | 0 | 1 | 18.16% |
+| 25 | AutoRIFT | randomstatsmodels | 18.79 | 0 | 0 | 29.67% |
+| 26 | AutoFracDiff | randomstatsmodels | 23.36 | 0 | 0 | 88.03% |
+| 27 | AutoStacked | ensemble | 24.89 | 0 | 0 | 95.01% |
 
 ### Dataset Coverage
 
@@ -151,10 +151,10 @@ All 27 models evaluated on **36 real-world time series** (20% holdout), ranked b
 ### Key Findings
 
 - **SF_AutoARIMA** (statsforecast) edges out as #1 overall — the industry gold standard
-- **AutoHybridForecaster** is the best randomstatsmodels model (#2) — linear + GRU residuals
+- **AutoHybridForecaster** is virtually tied at #2 (8.28 vs 8.25) — linear + GRU residuals
 - **AutoPolymath** is the best fast single model (#3) — polynomial + Fourier + ridge
-- **AutoKoopman** (#6) — Koopman/DMD eigenvalue propagation, extremely fast, best on CO2 and FedFunds
-- **AutoDynamic** (#7) — horizon-adaptive ensemble, best median sMAPE among our ensembles
+- **AutoKoopman** (#6) — Koopman/DMD eigenvalue propagation, extremely fast
+- **AutoDynamic** (#8) — horizon-adaptive ensemble using all 18 randomstatsmodels base models
 - **No single model dominates** — model selection matters for your data type
 
 ### Benchmarking Your Own Data
