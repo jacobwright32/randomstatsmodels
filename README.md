@@ -96,22 +96,26 @@ print("Best config:", model.best_)
 
 ## Benchmarks
 
-All 22 models evaluated on **36 real-world time series** (20% holdout), ranked by MAE.
+All 27 models evaluated on **36 real-world time series** (20% holdout), ranked by MAE. Includes 5 industry-standard statsforecast baselines for comparison.
 
 ### Overall Rankings
 
-| Rank | Model | Avg Rank | #1st | #Top3 | Mdn sMAPE |
-|------|-------|----------|------|-------|-----------|
-| 1 | AutoDynamic | 4.31 | 5 | 16 | 12.01% |
-| 2 | AutoHybridForecaster | 5.56 | 3 | 12 | 8.92% |
-| 3 | AutoPolymath | 6.14 | 5 | 12 | 9.54% |
-| 4 | AutoNEO | 6.56 | 2 | 12 | 13.57% |
-| 5 | AutoKoopman | 6.81 | 4 | 9 | 13.00% |
-| 6 | AutoSSA | 8.03 | 3 | 11 | 10.80% |
-| 7 | AutoBagged | 8.50 | 2 | 8 | 24.07% |
-| 8 | AutoKNN | 8.68 | 4 | 9 | 11.74% |
-| 9 | AutoNaive | 8.75 | 2 | 6 | 12.56% |
-| 10 | AutoLocalLinear | 8.94 | 2 | 6 | 13.30% |
+| Rank | Model | Type | Avg Rank | #1st | #Top3 | Mdn sMAPE |
+|------|-------|------|----------|------|-------|-----------|
+| 1 | SF_AutoARIMA | statsforecast | 8.36 | 4 | 9 | 6.43% |
+| 2 | AutoHybridForecaster | randomstatsmodels | 8.44 | 0 | 9 | 8.92% |
+| 3 | AutoPolymath | randomstatsmodels | 9.28 | 2 | 8 | 9.54% |
+| 4 | SF_AutoTBATS | statsforecast | 9.56 | 1 | 7 | 10.71% |
+| 5 | AutoNEO | randomstatsmodels | 9.85 | 1 | 8 | 13.57% |
+| 6 | AutoKoopman | randomstatsmodels | 10.31 | 3 | 5 | 13.00% |
+| 7 | AutoDynamic | ensemble | 10.50 | 2 | 4 | 12.01% |
+| 8 | SF_AutoCES | statsforecast | 10.56 | 4 | 9 | 10.27% |
+| 9 | SF_AutoETS | statsforecast | 11.67 | 1 | 2 | 11.46% |
+| 10 | AutoSSA | randomstatsmodels | 11.97 | 2 | 4 | 10.80% |
+| 11 | AutoKNN | randomstatsmodels | 12.82 | 2 | 9 | 11.74% |
+| 12 | AutoNaive | randomstatsmodels | 12.83 | 2 | 3 | 12.56% |
+| 13 | SF_AutoTheta | statsforecast | 12.86 | 1 | 4 | 12.23% |
+| 14 | AutoLocalLinear | randomstatsmodels | 13.58 | 2 | 3 | 13.30% |
 | 9 | AutoFourier | 9.67 | 2 | 6 | 18.93% |
 | 10 | AutoMELD | 9.85 | 0 | 6 | 12.79% |
 | 11 | AutoGreensKernel | 9.89 | 4 | 4 | 17.46% |
@@ -144,11 +148,11 @@ All 22 models evaluated on **36 real-world time series** (20% holdout), ranked b
 
 ### Key Findings
 
-- **AutoDynamic** (new) leads overall — horizon-adaptive ensemble that reweights models per forecast step
-- **AutoHybridForecaster** is the best single model — linear decomposition + GRU residuals
-- **AutoPolymath** is the best fast single model — polynomial + Fourier features with ridge regression
-- **AutoKoopman** is #5 overall — Koopman/DMD eigenvalue propagation, extremely fast
-- **AutoBagged** is the most robust ensemble — block-bootstrap reduces variance
+- **SF_AutoARIMA** (statsforecast) edges out as #1 overall — the industry gold standard
+- **AutoHybridForecaster** is the best randomstatsmodels model (#2) — linear + GRU residuals
+- **AutoPolymath** is the best fast single model (#3) — polynomial + Fourier + ridge
+- **AutoKoopman** (#6) — Koopman/DMD eigenvalue propagation, extremely fast, best on CO2 and FedFunds
+- **AutoDynamic** (#7) — horizon-adaptive ensemble, best median sMAPE among our ensembles
 - **No single model dominates** — model selection matters for your data type
 
 ### Benchmarking Your Own Data

@@ -6,6 +6,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2026-03-25
+### Added
+- **statsforecast comparison benchmarks**: SF_AutoARIMA, SF_AutoETS, SF_AutoCES, SF_AutoTheta, SF_AutoTBATS wrappers
+- statsforecast wrappers module (`benchmarking/statsforecast_wrappers.py`)
+- Full 27-model benchmark script (`examples/benchmark_all_v31.py`)
+- `model_type` column in benchmark results (randomstatsmodels, statsforecast, ensemble)
+- statsforecast as optional dependency
+
+### Changed
+- README rankings now show all 27 models with model_type column
+- SF_AutoARIMA ranks #1 overall (avg rank 8.36), AutoHybridForecaster #2 (8.44)
+
 ## [3.0.0] - 2026-03-24
 ### Added
 - **3 advanced ensemble forecasters**:
