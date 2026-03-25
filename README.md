@@ -116,17 +116,19 @@ All 27 models evaluated on **36 real-world time series** (20% holdout), ranked b
 | 12 | AutoNaive | randomstatsmodels | 12.83 | 2 | 3 | 12.56% |
 | 13 | SF_AutoTheta | statsforecast | 12.86 | 1 | 4 | 12.23% |
 | 14 | AutoLocalLinear | randomstatsmodels | 13.58 | 2 | 3 | 13.30% |
-| 9 | AutoFourier | 9.67 | 2 | 6 | 18.93% |
-| 10 | AutoMELD | 9.85 | 0 | 6 | 12.79% |
-| 11 | AutoGreensKernel | 9.89 | 4 | 4 | 17.46% |
-| 12 | AutoPALF | 10.42 | 2 | 2 | 13.89% |
-| 13 | AutoThetaAR | 10.56 | 1 | 4 | 24.03% |
-| 14 | AutoSpectralGradient | 11.50 | 0 | 1 | 16.28% |
-| 15 | AutoPDEField | 11.58 | 1 | 3 | 23.29% |
-| 16 | AutoHoltWinters | 12.31 | 1 | 2 | 23.47% |
-| 17 | AutoVariationalPath | 12.78 | 0 | 1 | 18.16% |
-| 18 | AutoRIFT | 13.29 | 0 | 1 | 29.67% |
-| 19 | AutoFracDiff | 16.78 | 0 | 1 | 88.03% |
+| 15 | AutoFourier | randomstatsmodels | 14.19 | 2 | 4 | 18.93% |
+| 16 | AutoMELD | randomstatsmodels | 14.32 | 1 | 3 | 13.88% |
+| 17 | AutoGreensKernel | randomstatsmodels | 14.33 | 2 | 4 | 17.46% |
+| 18 | AutoPALF | randomstatsmodels | 15.14 | 2 | 2 | 13.89% |
+| 19 | AutoThetaAR | randomstatsmodels | 15.47 | 0 | 1 | 24.03% |
+| 20 | AutoBagged | ensemble | 16.31 | 1 | 4 | 24.07% |
+| 21 | AutoPDEField | randomstatsmodels | 16.89 | 0 | 2 | 23.29% |
+| 22 | AutoSpectralGradient | randomstatsmodels | 17.19 | 0 | 1 | 16.28% |
+| 23 | AutoHoltWinters | randomstatsmodels | 17.86 | 1 | 2 | 23.47% |
+| 24 | AutoVariationalPath | randomstatsmodels | 18.28 | 0 | 1 | 18.16% |
+| 25 | AutoRIFT | randomstatsmodels | 19.06 | 0 | 0 | 29.67% |
+| 26 | AutoStacked | ensemble | 20.06 | 0 | 0 | 46.70% |
+| 27 | AutoFracDiff | randomstatsmodels | 23.58 | 0 | 0 | 88.03% |
 
 ### Dataset Coverage
 
