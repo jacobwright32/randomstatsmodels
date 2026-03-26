@@ -92,18 +92,22 @@ def main():
 
     # Final markdown table
     print(f"\n### {MODEL_NAME}\n")
-    print(f"| Speed | Median MAE | Median RMSE | Median MAPE | Median sMAPE | Median Fit (s) | OK |")
-    print(f"|-------|-----------|------------|------------|-------------|---------------|-----|")
+    print(f"| Speed | Mean MAE | Mean RMSE | Mean sMAPE | Median MAE | Median RMSE | Median sMAPE | Median Fit (s) | OK |")
+    print(f"|-------|---------|----------|-----------|-----------|------------|-------------|---------------|-----|")
     for speed in SPEEDS:
         runs = agg[speed]
         if not runs:
-            print(f"| {speed} | - | - | - | - | - | 0 |")
+            print(f"| {speed} | - | - | - | - | - | - | - | 0 |")
             continue
         def med(k):
             v = [r[k] for r in runs if r.get(k) is not None and np.isfinite(r[k])]
             return np.median(v) if v else float("nan")
-        print(f"| {speed} | {med('mae'):.2f} | {med('rmse'):.2f} | "
-              f"{med('mape'):.2f}% | {med('smape'):.2f}% | {med('fit_time'):.2f} | {len(runs)} |")
+        def avg(k):
+            v = [r[k] for r in runs if r.get(k) is not None and np.isfinite(r[k])]
+            return np.mean(v) if v else float("nan")
+        print(f"| {speed} | {avg('mae'):.2f} | {avg('rmse'):.2f} | {avg('smape'):.2f}% "
+              f"| {med('mae'):.2f} | {med('rmse'):.2f} | {med('smape'):.2f}% "
+              f"| {med('fit_time'):.2f} | {len(runs)} |")
 
     print(f"\nResults: {path}")
 
