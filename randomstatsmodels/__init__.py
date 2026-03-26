@@ -1,4 +1,4 @@
-__version__ = "3.3.1"
+__version__ = "4.0.0"
 
 from .benchmarking.benchmarking import benchmark_model, benchmark_models
 from .metrics import mae, mse, rmse, mape, smape
@@ -49,6 +49,7 @@ from .models import (
     DynamicEnsemble,
     AutoDynamic,
 )
+from .presets import create_model, list_models, get_grid
 
 __all__ = [
     "mae",
@@ -103,4 +104,7 @@ __all__ = [
     "AutoDynamic",
     "benchmark_model",
     "benchmark_models",
+    "create_model",
+    "list_models",
+    "get_grid",
 ]

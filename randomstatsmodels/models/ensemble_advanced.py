@@ -30,56 +30,25 @@ from ..metrics import mae, rmse
 
 
 # -----------------------------------------------------------------------
-# Default base model pool (all randomstatsmodels single models)
+# Default base model pool (top 5 randomstatsmodels models by benchmark rank)
 # -----------------------------------------------------------------------
 
 def _default_pool():
-    """Return a list of (AutoClass, kwargs) for all randomstatsmodels models."""
-    from .naive import AutoNaive
-    from .fourier import AutoFourier
-    from .local_linear import AutoLocalLinear
-    from .koopman import AutoKoopman
-    from .holt_winters import AutoHoltWinters
-    from .neo import AutoNEO
-    from .knn import AutoKNN
+    """Return the top 5 randomstatsmodels models by benchmark ranking."""
+    from .hybrid import AutoHybridForecaster
     from .polymath import AutoPolymath
-    from .theta_ar import AutoThetaAR
+    from .neo import AutoNEO
+    from .koopman import AutoKoopman
     from .ssa import AutoSSA
-    from .palf import AutoPALF
-    from .meld import AutoMELD
-    from .rift import AutoRIFT
-    from .fracdiff import AutoFracDiff
-    from .spectral_gradient import AutoSpectralGradient
-    from .greens_kernel import AutoGreensKernel
-    from .pde_field import AutoPDEField
-    from .variational_path import AutoVariationalPath
 
     return [
-        (AutoNaive, {}),
-        (AutoFourier, {}),
-        (AutoHoltWinters, {}),
-        (AutoLocalLinear, {}),
-        (AutoNEO, {"lags_grid": (4, 8), "degree_grid": (1, 2)}),
-        (AutoKNN, {}),
+        (AutoHybridForecaster, {}),
         (AutoPolymath, {}),
-        (AutoThetaAR, {}),
-        (AutoSSA, {}),
+        (AutoNEO, {"lags_grid": (4, 8), "degree_grid": (1, 2)}),
         (AutoKoopman, {"embed_grid": (4, 8, 12), "rank_grid": (0, 4),
                        "damping_grid": (0.98,), "deseason_grid": (True,),
                        "detrend_grid": (True,)}),
-        (AutoPALF, {}),
-        (AutoMELD, {}),
-        (AutoRIFT, {}),
-        (AutoFracDiff, {"d_grid": (0.3, 0.5), "ar_grid": (3, 5)}),
-        (AutoSpectralGradient, {"window_grid": (16, 32), "hop_grid": (8,),
-                                "damping_grid": (0.9,), "trend_weight_grid": (0.5,)}),
-        (AutoGreensKernel, {"n_components_grid": (2, 3), "max_lag_grid": (20,),
-                            "kernel_window_grid": (0,)}),
-        (AutoPDEField, {"n_scales_grid": (5,), "max_sigma_grid": (10.0,),
-                        "dt_steps_grid": (2,)}),
-        (AutoVariationalPath, {"smoothness_grid": (1.0,), "jerk_grid": (0.1,),
-                               "potential_grid": (0.5,), "seasonal_weight_grid": (1.0,),
-                               "attractor_grid": ("mean",)}),
+        (AutoSSA, {}),
     ]
 
 

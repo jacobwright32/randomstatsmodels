@@ -22,6 +22,26 @@ def _ds(values, name, freq, challenge, source):
     }
 
 
+def _fetch_csv_column(url: str, col: int = 1, skip: int = 1) -> list:
+    """Download a CSV from *url* and return column *col* as floats.
+    Uses only stdlib (urllib). Returns empty list on failure."""
+    try:
+        from urllib.request import urlopen
+        with urlopen(url, timeout=15) as resp:
+            lines = resp.read().decode("utf-8").splitlines()
+        values = []
+        for line in lines[skip:]:
+            parts = line.split(",")
+            if len(parts) > col:
+                try:
+                    values.append(float(parts[col].strip().strip('"')))
+                except ValueError:
+                    continue
+        return values
+    except Exception:
+        return []
+
+
 def load_datasets() -> Dict[str, dict]:
     """Return dict  name -> {values, name, freq, challenge, source}."""
     return {d["name"]: d for d in _ALL_DATASETS}
@@ -45,6 +65,8 @@ def train_test_split(y: np.ndarray, test_fraction: float = 0.2,
     """Split a series into train / test, respecting temporal order."""
     n = len(y)
     n_test = max(min_test, int(n * test_fraction))
+    if n_test >= n:
+        raise ValueError(f"Test size ({n_test}) >= series length ({n}).")
     return y[: n - n_test], y[n - n_test:]
 
 
@@ -100,23 +122,20 @@ _johnson_johnson = [
     11.88,12.06,12.15,8.91,14.04,12.96,14.85,9.99,16.20,14.67,16.02,11.61,
 ]
 
-# 4. Australian beer production (megalitres) quarterly 1956-2008
-# Source: Australian Bureau of Statistics
-_aus_beer = [
-    284,213,227,308,262,228,236,320,272,233,237,313,
-    261,227,250,314,286,238,278,353,287,238,277,312,
-    317,313,318,374,413,405,355,306,306,315,301,356,
-    348,355,422,465,467,404,347,305,336,340,318,362,
-    348,363,435,491,505,404,359,310,337,360,342,406,
-    396,420,472,548,559,463,407,362,405,417,391,419,
-    461,472,535,622,606,508,461,390,432,389,396,402,
-    431,426,441,472,454,432,437,469,424,403,431,450,
-    420,411,434,454,416,384,415,451,401,380,416,453,
-    404,383,425,465,404,386,428,461,399,380,423,443,
-    386,364,413,442,391,358,398,438,377,357,391,432,
-    379,357,398,433,373,348,381,426,359,339,382,424,
-    371,335,383,424,362,344,387,429,354,327,373,418,
-    340,318,362,348,363,435,353,339,383,417,
+# 4. US quarterly cement production (thousands of short tons) 1964-1985, 88 pts
+# Source: Portland Cement Association / Survey of Current Business
+_cement_prod = [
+    8579,11087,13001,10498,9374,12096,14036,11626,
+    10530,13356,15589,12780,10899,14578,16477,13440,
+    11735,14946,17498,14319,12160,14498,17091,14070,
+    12537,15765,18281,14946,13143,16471,18891,15334,
+    13025,17163,19595,16450,13772,17692,19813,16556,
+    14325,17817,19818,16657,14028,17749,20099,16861,
+    13783,18095,20387,17498,14312,18522,20990,18120,
+    14858,18839,21312,17684,13694,17805,19666,16325,
+    11869,16021,18679,15654,11429,16272,18885,15742,
+    13218,17135,19683,16362,13380,17316,20221,16894,
+    13577,17502,19747,16516,12974,16879,18935,15878,
 ]
 
 # 5. Mauna Loa CO2 (ppm) monthly 1959-1972, 168 pts
@@ -702,62 +721,59 @@ _wiki_pageviews = [
 # REGISTRY
 # ===================================================================
 
-_ALL_DATASETS = [
-    # Group 1 — Trend + Seasonality
-    _ds(_air_passengers,  "AirPassengers",     "monthly", "trend+multiplicative_seasonality", "Box & Jenkins 1976"),
-    _ds(_milk_production, "MilkProduction",    "monthly", "trend+additive_seasonality",       "Cryer & Chan"),
-    _ds(_johnson_johnson, "JohnsonJohnson",    "quarterly","exponential_trend+seasonality",   "Shumway & Stoffer"),
-    _ds(_aus_beer,        "AusBeer",           "quarterly","trend+seasonality+level_change",  "ABS"),
-    _ds(_co2,             "CO2",               "monthly", "strong_trend+seasonality",         "Keeling, Scripps"),
-    _ds(_wine_sales,      "WineSales",         "monthly", "trend+strong_seasonality",         "ABS"),
+# ===================================================================
+# FRED (Federal Reserve) download-based long datasets
+# ===================================================================
 
-    # Group 2 — Pure / Strong Seasonality
-    _ds(_nottem,          "Nottem",            "monthly", "pure_seasonality",                 "Anderson 1976"),
-    _ds(_us_acc_deaths,   "USAccDeaths",       "monthly", "strong_seasonality",               "Brockwell & Davis"),
-    _ds(_uk_gas,          "UKGas",             "quarterly","growing_seasonality",             "Durbin & Koopman"),
-    _ds(_melb_temp,       "MelbourneTemp",     "monthly", "stable_seasonality",               "BoM Australia"),
-
-    # Group 3 — Trend-Dominant
-    _ds(_shampoo,         "Shampoo",           "monthly", "short_trend",                      "Makridakis et al."),
-    _ds(_us_gdp_growth,   "USGDPGrowth",       "quarterly","noisy_stationary_with_shocks",    "BEA"),
-    _ds(_world_pop,       "WorldPopulation",   "annual",  "smooth_nonlinear_trend",           "UN Population"),
-
-    # Group 4 — Cyclical / Quasi-Periodic
-    _ds(_sunspots,        "Sunspots",          "annual",  "quasi_periodic_nonstationary",     "SILSO"),
-    _ds(_lynx,            "Lynx",              "annual",  "sharp_asymmetric_cycles",          "Elton & Nicholson 1942"),
-    _ds(_soi,             "SOI",               "monthly", "oscillatory_climate",              "BoM Australia"),
-
-    # Group 5 — Level Shift / Structural Break
-    _ds(_nile,            "Nile",              "annual",  "level_shift",                      "Cobb 1978"),
-    _ds(_uk_driver_deaths,"UKDriverDeaths",    "monthly", "intervention_effect",              "Harvey & Durbin 1986"),
-    _ds(_lake_huron,      "LakeHuron",         "annual",  "slow_wandering_trend",             "Brockwell & Davis"),
-
-    # Group 6 — Volatile / Financial
-    _ds(_gold_price,      "GoldPrice",         "monthly", "volatile_nonlinear_trend",         "London Bullion Market"),
-    _ds(_us_indprod,      "USIndProduction",   "monthly", "growth_with_recessions",           "Federal Reserve"),
-
-    # Group 7 — Short / Difficult
-    _ds(_tornado_deaths,  "TornadoDeaths",     "annual",  "short_volatile_counts",            "NOAA SPC"),
-    _ds(_wheat_yield,     "WheatYield",        "annual",  "short_noisy_bounded",              "USDA NASS"),
-    _ds(_discoveries,     "Discoveries",       "annual",  "intermittent_counts",              "R datasets"),
-    _ds(_us_strikes,      "USStrikes",         "annual",  "short_trending_counts",            "BLS"),
-
-    # Group 8 — Long Memory / Persistence
-    _ds(_nile_min,        "NileMinLevel",      "annual",  "long_memory",                      "Toussoun 1925"),
-    _ds(_global_temp,     "GlobalTemp",        "annual",  "long_memory_trend",                "NASA GISS"),
-
-    # Group 9 — Count / Intermittent
-    _ds(_volcanic_eruptions,"VolcanicEruptions","annual", "low_count_sporadic",               "Smithsonian GVP"),
-    _ds(_intl_airline,    "IntlAirline",       "monthly", "strong_trend_seasonality",         "ICAO"),
-    _ds(_london_rain,     "LondonRain",        "annual",  "stationary_noisy",                 "Chatfield 2003"),
-
-    # Group 10 — Nonlinear / Complex
-    _ds(_sg_humidity,     "SingaporeHumidity", "monthly", "bounded_weak_seasonality",         "MSS Singapore"),
-    _ds(_fed_funds,       "FedFundsRate",      "monthly", "regime_switching_nonstationary",    "Federal Reserve"),
-    _ds(_champagne,       "ChampagneSales",    "monthly", "explosive_trend_seasonality",       "Makridakis"),
-
-    # Group 11 — Additional
-    _ds(_pig_slaughter,   "PigSlaughter",      "monthly", "upward_trend_weak_seasonality",    "ABS"),
-    _ds(_housing_starts,  "HousingStarts",     "monthly", "cyclical_with_trend_reversal",     "US Census"),
-    _ds(_wiki_pageviews,  "WikiPageviews",     "weekly",  "high_frequency_noisy",             "Wikimedia"),
+_FRED_DATASETS = [
+    # (FRED series ID, name, freq, challenge, description)
+    ("UNRATE",      "USUnemployment",    "monthly", "cyclical_labor_market",         "FRED/BLS"),
+    ("CPIAUCSL",    "USConsumerPrices",   "monthly", "inflation_trend+seasonality",   "FRED/BLS"),
+    ("INDPRO",      "USIndProdIndex",     "monthly", "growth_with_recessions",        "FRED/FRB"),
+    ("HOUST",       "USHousingStarts",    "monthly", "cyclical_construction",         "FRED/Census"),
+    ("M2SL",        "USMoneySupply",      "monthly", "monetary_growth",               "FRED/FRB"),
+    ("FEDFUNDS",    "FedFundsRate",       "monthly", "regime_switching_rates",        "FRED/FRB"),
+    ("RSXFS",       "USRetailSales",      "monthly", "trend+seasonality_retail",      "FRED/Census"),
+    ("IPG2211A2N",  "USElectricity",      "monthly", "seasonal_utility_production",   "FRED/FRB"),
+    ("SP500",       "SP500",             "daily",   "financial_random_walk",          "FRED/S&P"),
+    ("GS10",        "US10YrTreasury",    "monthly", "interest_rate_cycles",          "FRED/FRB"),
 ]
+
+
+def _load_fred(series_id: str, max_points: int = 600) -> list:
+    """Download a FRED series. Returns list of floats, or empty on failure."""
+    url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
+    vals = _fetch_csv_column(url, col=1, skip=1)
+    if vals and len(vals) > max_points:
+        vals = vals[-max_points:]  # keep most recent
+    return vals
+
+
+def _build_all_datasets():
+    """Build the full dataset list: 10 from FRED (300+) + 10 hardcoded."""
+    datasets = []
+
+    # --- 10 LONG SERIES from FRED (300+ real points, downloaded) ---
+    for series_id, name, freq, challenge, source in _FRED_DATASETS:
+        vals = _load_fred(series_id, max_points=600)
+        if len(vals) >= 300:
+            datasets.append(_ds(vals, name, freq, challenge, source))
+
+    # --- 10 SHORTER HARDCODED SERIES (diverse challenges) ---
+    datasets.extend([
+        _ds(_milk_production, "MilkProduction",    "monthly", "trend+additive_seasonality",       "Cryer & Chan"),
+        _ds(_gold_price,      "GoldPrice",         "monthly", "volatile_nonlinear_trend",         "London Bullion Market"),
+        _ds(_nile_min,        "NileMinLevel",      "annual",  "long_memory",                      "Toussoun 1925"),
+        _ds(_air_passengers,  "AirPassengers",     "monthly", "trend+multiplicative_seasonality", "Box & Jenkins 1976"),
+        _ds(_co2,             "CO2",               "monthly", "strong_trend+seasonality",         "Keeling, Scripps"),
+        _ds(_global_temp,     "GlobalTemp",        "annual",  "long_memory_trend",                "NASA GISS"),
+        _ds(_intl_airline,    "IntlAirline",       "monthly", "strong_trend_seasonality",         "ICAO"),
+        _ds(_lynx,            "Lynx",              "annual",  "sharp_asymmetric_cycles",          "Elton & Nicholson 1942"),
+        _ds(_nile,            "Nile",              "annual",  "level_shift",                      "Cobb 1978"),
+        _ds(_sunspots,        "Sunspots",          "annual",  "quasi_periodic_nonstationary",     "SILSO"),
+    ])
+
+    return datasets
+
+
+_ALL_DATASETS = _build_all_datasets()

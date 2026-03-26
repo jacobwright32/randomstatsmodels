@@ -6,6 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-03-25
+### Added
+- **Speed presets** on every Auto* model: `speed="super_fast"`, `"fast"`, `"normal"`, `"slow"`, `"super_slow"`
+  - Controls grid search size (from ~2 combos to 2000+)
+  - Explicit kwargs always override the speed preset
+- `create_model(name, speed)` factory function and `get_grid()` API
+- `presets.py` module with 5-level grid definitions for all 22 models
+- 10 real-world FRED datasets (300-600 pts) downloaded at runtime
+- Separate benchmark scripts: `benchmark_fast_models.py` (<30s models) and `benchmark_slow_models.py` (>30s models)
+- Incremental CSV saving during benchmarks (results not lost on crash)
+
+### Changed
+- Ensemble base pool now uses top 5 randomstatsmodels models only
+- Ensembles removed from benchmark rankings (they wrap other models)
+- AusBeer dataset replaced with CementProduction (data integrity fix)
+- `train_test_split` now raises on too-short series
+- Datasets reduced from 36 to 20 (10 long FRED + 10 classic hardcoded)
+- Benchmark rankings use RMSE, counts per-dataset (max 20)
+
+### Removed
+- Removed synthetic data extension (`_extend_series`)
+- Removed old benchmark scripts
+
 ## [3.1.0] - 2026-03-25
 ### Added
 - **statsforecast comparison benchmarks**: SF_AutoARIMA, SF_AutoETS, SF_AutoCES, SF_AutoTheta, SF_AutoTBATS wrappers

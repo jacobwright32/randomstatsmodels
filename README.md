@@ -96,79 +96,75 @@ print("Best config:", model.best_)
 
 ## Benchmarks
 
-All 27 models evaluated on **36 real-world time series** (20% holdout), ranked by MAE. Includes 5 industry-standard statsforecast baselines for comparison.
+22 models evaluated on **20 real-world time series** (10 from FRED with 300-600 points, 10 classic hardcoded) using `speed="slow"` grids. Ranked by RMSE per dataset. Includes 5 statsforecast baselines. AutoRIFT and AutoHybridForecaster excluded from fast benchmark (>30s fit time per dataset).
 
 ### Overall Rankings
 
-Models ranked by RMSE per dataset. #1st, #Top3, #Top7 = number of datasets (out of 36) where the model placed in that position.
-
 | Rank | Model | Type | Avg Rank | #1st | #Top3 | #Top7 | Median MAE | Median RMSE | Median MAPE | Median sMAPE |
 |------|-------|------|----------|------|-------|-------|-----------|------------|------------|-------------|
-| 1 | SF_AutoARIMA | statsforecast | 7.75 | 6 | 10 | 22 | 14.01 | 16.67 | 6.56% | 6.43% |
-| 2 | AutoHybridForecaster | randomstatsmodels | 7.92 | 3 | 8 | 18 | 23.94 | 27.46 | 8.79% | 8.92% |
-| 3 | AutoPolymath | randomstatsmodels | 8.94 | 2 | 7 | 15 | 10.75 | 13.41 | 10.16% | 9.54% |
-| 4 | SF_AutoTBATS | statsforecast | 9.56 | 1 | 7 | 16 | 14.73 | 17.59 | 10.95% | 10.71% |
-| 5 | AutoKoopman | randomstatsmodels | 9.78 | 1 | 5 | 13 | 23.06 | 28.66 | 12.69% | 13.00% |
-| 6 | SF_AutoCES | statsforecast | 10.42 | 4 | 8 | 15 | 13.01 | 16.05 | 10.25% | 10.27% |
-| 7 | AutoDynamic | ensemble | 10.58 | 1 | 5 | 13 | 24.24 | 29.12 | 14.34% | 13.75% |
-| 8 | SF_AutoETS | statsforecast | 10.67 | 1 | 4 | 11 | 15.43 | 18.24 | 11.30% | 11.46% |
-| 9 | AutoNEO | randomstatsmodels | 10.86 | 2 | 7 | 16 | 26.78 | 36.34 | 12.67% | 13.57% |
-| 10 | AutoSSA | randomstatsmodels | 12.17 | 2 | 4 | 12 | 15.72 | 19.07 | 10.60% | 10.80% |
-| 11 | AutoNaive | randomstatsmodels | 12.28 | 3 | 3 | 9 | 13.27 | 16.32 | 12.46% | 12.56% |
-| 12 | SF_AutoTheta | statsforecast | 12.72 | 1 | 3 | 9 | 16.50 | 20.94 | 12.33% | 12.23% |
-| 13 | AutoLocalLinear | randomstatsmodels | 13.19 | 0 | 4 | 13 | 15.34 | 20.87 | 13.64% | 13.30% |
-| 14 | AutoKNN | randomstatsmodels | 13.56 | 2 | 8 | 12 | 10.65 | 12.91 | 11.58% | 11.74% |
-| 15 | AutoGreensKernel | randomstatsmodels | 13.64 | 1 | 4 | 11 | 21.18 | 25.83 | 16.47% | 17.46% |
-| 16 | AutoFourier | randomstatsmodels | 13.78 | 3 | 4 | 9 | 32.74 | 40.36 | 19.44% | 18.93% |
-| 17 | AutoPALF | randomstatsmodels | 14.83 | 1 | 2 | 5 | 24.32 | 28.59 | 15.04% | 13.89% |
-| 18 | AutoMELD | randomstatsmodels | 15.42 | 0 | 3 | 8 | 6.30 | 8.20 | 13.70% | 13.88% |
-| 19 | AutoThetaAR | randomstatsmodels | 15.92 | 0 | 0 | 3 | 24.03 | 29.14 | 22.09% | 24.03% |
-| 20 | AutoBagged | ensemble | 15.94 | 0 | 5 | 8 | 29.73 | 34.69 | 23.87% | 24.07% |
-| 21 | AutoPDEField | randomstatsmodels | 16.42 | 0 | 2 | 4 | 27.90 | 33.07 | 23.77% | 23.29% |
-| 22 | AutoSpectralGradient | randomstatsmodels | 16.89 | 0 | 1 | 3 | 53.35 | 61.39 | 15.31% | 16.28% |
-| 23 | AutoHoltWinters | randomstatsmodels | 17.56 | 1 | 2 | 3 | 30.23 | 36.09 | 20.24% | 23.47% |
-| 24 | AutoVariationalPath | randomstatsmodels | 18.47 | 1 | 1 | 1 | 23.45 | 30.16 | 20.14% | 18.16% |
-| 25 | AutoRIFT | randomstatsmodels | 20.14 | 0 | 0 | 2 | 27.19 | 35.14 | 27.37% | 29.67% |
-| 26 | AutoFracDiff | randomstatsmodels | 23.69 | 0 | 1 | 1 | 214.44 | 217.35 | 61.11% | 88.03% |
-| 27 | AutoStacked | ensemble | 25.08 | 0 | 0 | 0 | 118.98 | 131.70 | 168.43% | 95.01% |
+| 1 | SF_AutoTBATS | statsforecast | 7.30 | 1 | 5 | 10 | 18.28 | 23.53 | 7.66% | 7.77% |
+| 2 | SF_AutoARIMA | statsforecast | 8.00 | 1 | 3 | 10 | 18.03 | 23.29 | 7.14% | 7.65% |
+| 3 | AutoNEO | randomstatsmodels | 8.94 | 2 | 4 | 8 | 25.86 | 36.51 | 7.38% | 7.59% |
+| 4 | AutoMELD | randomstatsmodels | 8.95 | 2 | 4 | 7 | 20.80 | 27.83 | 7.79% | 7.84% |
+| 5 | SF_AutoETS | statsforecast | 9.35 | 0 | 0 | 9 | 33.65 | 38.18 | 11.53% | 12.08% |
+| 6 | SF_AutoCES | statsforecast | 9.80 | 5 | 6 | 9 | 18.96 | 23.27 | 10.70% | 10.71% |
+| 7 | AutoNaive | randomstatsmodels | 10.05 | 1 | 1 | 7 | 24.43 | 30.87 | 12.94% | 13.68% |
+| 8 | AutoKoopman | randomstatsmodels | 10.75 | 0 | 5 | 5 | 31.60 | 40.47 | 12.63% | 12.59% |
+| 9 | AutoPolymath | randomstatsmodels | 10.84 | 0 | 4 | 6 | 22.65 | 29.33 | 9.48% | 9.00% |
+| 10 | SF_AutoTheta | statsforecast | 11.00 | 0 | 3 | 7 | 20.07 | 25.67 | 8.97% | 9.27% |
+| 11 | AutoPALF | randomstatsmodels | 11.00 | 2 | 2 | 7 | 42.30 | 49.53 | 12.77% | 13.84% |
+| 12 | AutoKNN | randomstatsmodels | 11.05 | 1 | 2 | 8 | 35.92 | 43.24 | 12.71% | 13.89% |
+| 13 | AutoPDEField | randomstatsmodels | 11.25 | 0 | 2 | 5 | 36.12 | 41.58 | 11.16% | 11.66% |
+| 14 | AutoSSA | randomstatsmodels | 11.75 | 0 | 3 | 6 | 31.47 | 38.00 | 12.24% | 13.28% |
+| 15 | AutoThetaAR | randomstatsmodels | 11.80 | 0 | 1 | 5 | 38.03 | 43.81 | 15.11% | 16.76% |
+| 16 | AutoHoltWinters | randomstatsmodels | 12.20 | 2 | 2 | 7 | 49.16 | 60.66 | 14.24% | 14.63% |
+| 17 | AutoGreensKernel | randomstatsmodels | 12.60 | 1 | 3 | 6 | 40.53 | 48.61 | 15.87% | 16.51% |
+| 18 | AutoVariationalPath | randomstatsmodels | 12.80 | 0 | 3 | 5 | 57.52 | 67.07 | 13.10% | 13.52% |
+| 19 | AutoSpectralGradient | randomstatsmodels | 13.25 | 1 | 3 | 4 | 54.54 | 64.10 | 15.53% | 15.02% |
+| 20 | AutoFourier | randomstatsmodels | 14.15 | 1 | 3 | 4 | 69.65 | 83.66 | 22.71% | 22.45% |
+| 21 | AutoLocalLinear | randomstatsmodels | 15.10 | 0 | 1 | 5 | 56.44 | 63.38 | 20.47% | 25.01% |
+| 22 | AutoFracDiff | randomstatsmodels | 18.60 | 0 | 0 | 0 | 110.80 | 113.95 | 30.43% | 36.00% |
 
-### Dataset Coverage
+### Speed Presets
 
-36 real-world datasets across 11 challenge categories:
+Every Auto* model accepts a `speed` parameter controlling grid search thoroughness:
 
-| Category | Datasets |
-|----------|----------|
-| Trend + Seasonality | AirPassengers, MilkProduction, JohnsonJohnson, AusBeer, CO2, WineSales |
-| Pure Seasonality | Nottem, USAccDeaths, UKGas, MelbourneTemp |
-| Trend-Dominant | Shampoo, USGDPGrowth, WorldPopulation |
-| Cyclical | Sunspots, Lynx, SOI |
-| Level Shift | Nile, UKDriverDeaths, LakeHuron |
-| Volatile / Financial | GoldPrice, USIndProduction |
-| Short Series | TornadoDeaths, WheatYield, Discoveries, USStrikes |
-| Long Memory | NileMinLevel, GlobalTemp |
-| Count / Intermittent | VolcanicEruptions, IntlAirline, LondonRain |
-| Nonlinear | SingaporeHumidity, FedFundsRate, ChampagneSales |
-| Additional | PigSlaughter, HousingStarts, WikiPageviews |
+```python
+from randomstatsmodels import AutoKoopman
+
+model = AutoKoopman(speed="super_fast")   # ~1 combo, seconds
+model = AutoKoopman(speed="fast")         # ~6 combos
+model = AutoKoopman(speed="normal")       # default grids
+model = AutoKoopman(speed="slow")         # ~864 combos
+model = AutoKoopman(speed="super_slow")   # ~2640 combos
+```
+
+### Datasets
+
+20 real-world datasets (10 from FRED with 300-600 points, 10 classic):
+
+| Source | Datasets |
+|--------|----------|
+| FRED (300-600 pts) | USUnemployment, USConsumerPrices, USIndProdIndex, USHousingStarts, USMoneySupply, FedFundsRate, USRetailSales, USElectricity, SP500, US10YrTreasury |
+| Classic (89-168 pts) | MilkProduction, GoldPrice, NileMinLevel, AirPassengers, CO2, GlobalTemp, IntlAirline, Lynx, Nile, Sunspots |
 
 ### Key Findings
 
-- **SF_AutoARIMA** is #1 by RMSE (7.75) — 6 first-place finishes, top 7 on 22/36 datasets
-- **AutoHybridForecaster** is #2 (7.92) — best randomstatsmodels model, linear + GRU residuals
-- **AutoPolymath** is the best fast model (#3) — lowest median MAE (10.75) and RMSE (13.41)
-- **AutoKoopman** (#5) — Koopman/DMD eigenvalue propagation, extremely fast
-- **AutoDynamic** (#7) — horizon-adaptive ensemble using all 18 randomstatsmodels base models
+- **SF_AutoTBATS** is #1 by RMSE — strong on seasonal FRED data
+- **SF_AutoARIMA** is #2 — most consistent across dataset types
+- **AutoNEO** is the best randomstatsmodels model (#3) — polynomial AR features
+- **AutoMELD** is #4 — multiscale embedding excels on longer series
+- **AutoKoopman** (#8) — DMD eigenvalue propagation, 5 top-3 finishes
 - **No single model dominates** — model selection matters for your data type
 
 ### Benchmarking Your Own Data
 
 ```python
-from randomstatsmodels.benchmarking.datasets import load_datasets
-from randomstatsmodels.benchmarking.evaluation import evaluate_all, print_summary
-from randomstatsmodels import AutoKoopman, AutoPolymath, AutoSSA
+from randomstatsmodels import AutoKoopman
 
-datasets = load_datasets()
-results = evaluate_all([AutoKoopman, AutoPolymath, AutoSSA], datasets)
-print_summary(results["summary"])
+model = AutoKoopman(speed="slow")
+model.fit(y_train)
+preds = model.predict(h)
 ```
 
 ---

@@ -548,7 +548,7 @@ class TestDatasets:
     def test_load_datasets(self):
         from randomstatsmodels.benchmarking.datasets import load_datasets
         ds = load_datasets()
-        assert len(ds) >= 30
+        assert len(ds) >= 20
 
     def test_get_dataset(self):
         from randomstatsmodels.benchmarking.datasets import get_dataset

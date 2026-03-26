@@ -24,6 +24,17 @@ from .ensemble_advanced import (
     DynamicEnsemble, AutoDynamic,
 )
 
+# Apply speed parameter to every Auto* class
+from ..presets import _add_speed as _s
+for _cls in [AutoFourier, AutoHybridForecaster, AutoMELD, AutoKNN, AutoPALF,
+             AutoNEO, AutoThetaAR, AutoPolymath, AutoNaive, AutoHoltWinters,
+             AutoSSA, AutoLocalLinear, AutoEnsemble, AutoRIFT,
+             AutoFracDiff, AutoSpectralGradient, AutoGreensKernel,
+             AutoPDEField, AutoVariationalPath, AutoKoopman,
+             AutoStacked, AutoBagged, AutoDynamic]:
+    _s(_cls)
+del _s, _cls
+
 __all__ = [
     "HybridForecastNet",
     "AutoHybridForecaster",
