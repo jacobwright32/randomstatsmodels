@@ -157,15 +157,29 @@ model = AutoKoopman(speed="super_slow")   # ~2640 combos
 - **AutoKoopman** (#8) — DMD eigenvalue propagation, 5 top-3 finishes
 - **No single model dominates** — model selection matters for your data type
 
-### Benchmarking Your Own Data
+### Per-Model Speed Benchmarks (100 real-world datasets)
 
-```python
-from randomstatsmodels import AutoKoopman
+#### AutoNaive (0.01s baseline)
 
-model = AutoKoopman(speed="slow")
-model.fit(y_train)
-preds = model.predict(h)
-```
+#### AutoThetaAR
+
+| Speed | Median MAE | Median RMSE | Median MAPE | Median sMAPE | Median Fit (s) | OK |
+|-------|-----------|------------|------------|-------------|---------------|-----|
+| super_fast | 38.03 | 43.81 | 14.61% | 15.97% | 0.03 | 100 |
+| fast | 38.03 | 43.81 | 14.61% | 15.97% | 0.03 | 100 |
+| normal | 38.03 | 43.81 | 14.61% | 15.97% | 0.03 | 100 |
+| slow | 38.03 | 43.81 | 14.61% | 15.97% | 0.02 | 100 |
+| super_slow | 38.03 | 43.81 | 14.61% | 15.97% | 0.02 | 100 |
+
+#### AutoNaive
+
+| Speed | Median MAE | Median RMSE | Median MAPE | Median sMAPE | Median Fit (s) | OK |
+|-------|-----------|------------|------------|-------------|---------------|-----|
+| super_fast | 41.87 | 51.48 | 19.90% | 20.43% | 0.00 | 100 |
+| fast | 39.12 | 46.52 | 18.85% | 19.94% | 0.01 | 100 |
+| normal | 26.38 | 31.77 | 14.50% | 16.16% | 0.02 | 100 |
+| slow | 26.38 | 31.77 | 13.77% | 15.10% | 0.02 | 100 |
+| super_slow | 26.38 | 31.77 | 13.77% | 15.10% | 0.03 | 100 |
 
 ---
 

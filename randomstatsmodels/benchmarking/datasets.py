@@ -725,18 +725,105 @@ _wiki_pageviews = [
 # FRED (Federal Reserve) download-based long datasets
 # ===================================================================
 
+# ===================================================================
+# FRED datasets — (series_id, name, freq, challenge, max_points)
+# Organised by frequency. 80 FRED series + 20 hardcoded = 100 total.
+# ===================================================================
+
 _FRED_DATASETS = [
-    # (FRED series ID, name, freq, challenge, description)
-    ("UNRATE",      "USUnemployment",    "monthly", "cyclical_labor_market",         "FRED/BLS"),
-    ("CPIAUCSL",    "USConsumerPrices",   "monthly", "inflation_trend+seasonality",   "FRED/BLS"),
-    ("INDPRO",      "USIndProdIndex",     "monthly", "growth_with_recessions",        "FRED/FRB"),
-    ("HOUST",       "USHousingStarts",    "monthly", "cyclical_construction",         "FRED/Census"),
-    ("M2SL",        "USMoneySupply",      "monthly", "monetary_growth",               "FRED/FRB"),
-    ("FEDFUNDS",    "FedFundsRate",       "monthly", "regime_switching_rates",        "FRED/FRB"),
-    ("RSXFS",       "USRetailSales",      "monthly", "trend+seasonality_retail",      "FRED/Census"),
-    ("IPG2211A2N",  "USElectricity",      "monthly", "seasonal_utility_production",   "FRED/FRB"),
-    ("SP500",       "SP500",             "daily",   "financial_random_walk",          "FRED/S&P"),
-    ("GS10",        "US10YrTreasury",    "monthly", "interest_rate_cycles",          "FRED/FRB"),
+    # --- DAILY (1000s of points) ---
+    ("SP500",           "SP500",                "daily",     "financial_random_walk",        2500),
+    ("NASDAQCOM",       "NASDAQ",               "daily",     "financial_growth_trend",       2500),
+    ("DJIA",            "DowJones",             "daily",     "financial_blue_chip",          2500),
+    ("VIXCLS",          "VIX",                  "daily",     "volatility_clustering",        2500),
+    ("DCOILWTICO",      "OilWTI",               "daily",     "commodity_volatile",           2500),
+    ("DCOILBRENTEU",    "OilBrent",             "daily",     "commodity_global",             2500),
+    ("DEXUSEU",         "USDEUR",               "daily",     "forex_major_pair",             2500),
+    ("DEXJPUS",         "USDJPY",               "daily",     "forex_carry_trade",            2500),
+    ("DEXCHUS",         "USDCNY",               "daily",     "forex_managed_float",          2500),
+    ("DEXKOUS",         "USDKRW",               "daily",     "forex_emerging",               2500),
+    ("DGS2",            "Treasury2Y",           "daily",     "short_rate_cycles",            2500),
+    ("DGS30",           "Treasury30Y",          "daily",     "long_rate_cycles",             2500),
+    ("T10Y2Y",          "YieldSpread",          "daily",     "recession_indicator",          2500),
+    ("DTWEXBGS",        "TradeWeightedUSD",     "daily",     "currency_basket",              2500),
+    ("BAMLH0A0HYM2",    "HighYieldSpread",      "daily",     "credit_risk_spread",           2500),
+
+    # --- WEEKLY (500-3000 points) ---
+    ("ICSA",            "InitialClaims",        "weekly",    "labor_high_freq",              2000),
+    ("CCSA",            "ContinuedClaims",      "weekly",    "labor_persistence",            2000),
+    ("WM2NS",           "WeeklyM2",             "weekly",    "monetary_weekly",              2000),
+    ("WRESBAL",         "FedReserves",          "weekly",    "central_bank_balance",         1200),
+    ("MORTGAGE30US",    "Mortgage30Y",          "weekly",    "housing_rates",                2000),
+
+    # --- MONTHLY (600-1100 points) ---
+    ("UNRATE",          "USUnemployment",       "monthly",   "cyclical_labor_market",         900),
+    ("CPIAUCSL",        "USConsumerPrices",     "monthly",   "inflation_trend",               900),
+    ("INDPRO",          "USIndProdIndex",       "monthly",   "growth_with_recessions",        900),
+    ("HOUST",           "USHousingStarts",      "monthly",   "cyclical_construction",         800),
+    ("M2SL",            "USMoneySupply",        "monthly",   "monetary_growth",               800),
+    ("FEDFUNDS",        "FedFundsRate",         "monthly",   "regime_switching_rates",         800),
+    ("RSXFS",           "USRetailSales",        "monthly",   "trend+seasonality_retail",       400),
+    ("IPG2211A2N",      "USElectricity",        "monthly",   "seasonal_utility",              900),
+    ("GS10",            "US10YrTreasury",       "monthly",   "interest_rate_cycles",          800),
+    ("PAYEMS",          "USNonfarmPayrolls",    "monthly",   "employment_trend",             1000),
+    ("UMCSENT",         "ConsumerSentiment",    "monthly",   "survey_cyclical",               600),
+    ("PCE",             "PersonalConsumption",  "monthly",   "spending_trend",                800),
+    ("PCEPI",           "PCEPriceIndex",        "monthly",   "inflation_pce",                 800),
+    ("TOTALSA",         "VehicleSales",         "monthly",   "durable_goods_cyclical",        600),
+    ("PERMIT",          "BuildingPermits",      "monthly",   "leading_indicator_housing",     800),
+    ("UNEMPLOY",        "UnemploymentLevel",    "monthly",   "labor_level",                   900),
+    ("CSUSHPINSA",      "CaseShillerHome",      "monthly",   "housing_prices_nsa",            450),
+    ("BUSLOANS",        "BusinessLoans",        "monthly",   "credit_growth",                 900),
+    ("EXJPUS",          "JPYUSD_Monthly",       "monthly",   "forex_monthly",                 660),
+    ("TB3MS",           "TBill3Month",          "monthly",   "short_rate_monthly",           1100),
+    ("DGORDER",         "DurableGoods",         "monthly",   "manufacturing_orders",          400),
+    ("JTSJOL",          "JobOpenings",          "monthly",   "labor_demand",                  300),
+    ("CPILFESL",        "CoreCPI",              "monthly",   "core_inflation",                830),
+    ("BOGMBASE",        "MonetaryBase",         "monthly",   "central_bank_policy",           800),
+    ("PSAVERT",         "SavingsRate",          "monthly",   "household_behavior",            800),
+    ("AWHMAN",          "AvgWeeklyHours",       "monthly",   "labor_intensity",              1000),
+    ("MSPUS",           "MedianHomePrice",      "monthly",   "housing_price_trend",           250),
+    ("CONSUMER",        "ConsumerLoans",        "monthly",   "consumer_credit",               900),
+    ("RETAILSMSA",      "RetailSalesSA",        "monthly",   "retail_seasonally_adj",         400),
+
+    # --- QUARTERLY (80-316 points) ---
+    ("GDP",             "USGDPNominal",         "quarterly", "nominal_gdp_trend",             316),
+    ("GDPC1",           "USGDPReal",            "quarterly", "real_gdp_growth",               316),
+    ("CPROFIT",         "CorporateProfits",     "quarterly", "earnings_cyclical",             315),
+    ("GFDEGDQ188S",     "DebtToGDP",            "quarterly", "fiscal_sustainability",         240),
+    ("BOGZ1FL073164003Q","HouseholdNetWorth",   "quarterly", "wealth_trend",                  303),
+    ("TDSP",            "DebtServiceRatio",     "quarterly", "household_leverage",             84),
+
+    # --- EXTRA MONTHLY (to reach 100) ---
+    ("CIVPART",         "LaborParticipation",   "monthly",   "demographic_trend",              900),
+    ("EMRATIO",         "EmploymentPopRatio",   "monthly",   "labor_utilization",              900),
+    ("MANEMP",          "ManufacturingEmp",     "monthly",   "sector_decline",                1000),
+    ("USCONS",          "ConstructionEmp",      "monthly",   "sector_cyclical",               1000),
+    ("USFIRE",          "FinanceEmp",           "monthly",   "sector_growth",                 1000),
+    ("USGOVT",          "GovernmentEmp",        "monthly",   "sector_stable",                 1000),
+    ("USTRADE",         "TradeEmp",             "monthly",   "sector_services",               1000),
+    ("USINFO",          "InformationEmp",       "monthly",   "sector_tech",                   1000),
+    ("IPMAN",           "ManufacturingIP",      "monthly",   "industrial_manufacturing",       650),
+    ("CMRMTSPL",        "RealRetailSales",      "monthly",   "real_retail_trend",              700),
+    ("PPIFGS",          "PPIFinishedGoods",     "monthly",   "producer_prices",                825),
+    ("LNS14000006",     "BlackUnemployment",    "monthly",   "demographic_labor",              649),
+    ("LNS14000009",     "HispanicUnemployment", "monthly",   "demographic_labor_2",            635),
+    ("WHLSLRIMSA",      "WholesaleInventories", "monthly",   "supply_chain",                   408),
+
+    # --- EXTRA DAILY ---
+    ("DTB3",            "DailyTBill3M",         "daily",     "short_rate_daily",              5000),
+    ("TEDRATE",         "TEDSpread",            "daily",     "interbank_risk",                5000),
+    ("DFEDTARU",        "FedTargetUpper",       "daily",     "policy_rate_steps",             5000),
+
+    # --- EXTRA QUARTERLY ---
+    ("A191RL1Q225SBEA", "RealGDPGrowthRate",    "quarterly", "gdp_growth_rate",                315),
+    ("A939RC0Q052SBEA", "GDPPerCapita",         "quarterly", "per_capita_trend",               316),
+    ("EXPGS",           "USExports",            "quarterly", "trade_exports",                  316),
+    ("IMPGS",           "USImports",            "quarterly", "trade_imports",                  316),
+    ("W068RCQ027SBEA",  "GovtSpending",         "quarterly", "fiscal_spending",                264),
+
+    # --- EXTRA ANNUAL ---
+    ("FYFSD",           "FederalSurplus",       "annual",    "fiscal_balance",                 125),
 ]
 
 
@@ -745,32 +832,47 @@ def _load_fred(series_id: str, max_points: int = 600) -> list:
     url = f"https://fred.stlouisfed.org/graph/fredgraph.csv?id={series_id}"
     vals = _fetch_csv_column(url, col=1, skip=1)
     if vals and len(vals) > max_points:
-        vals = vals[-max_points:]  # keep most recent
+        vals = vals[-max_points:]
     return vals
 
 
 def _build_all_datasets():
-    """Build the full dataset list: 10 from FRED (300+) + 10 hardcoded."""
+    """Build the full dataset list: ~80 from FRED + 20 hardcoded = ~100 total."""
     datasets = []
 
-    # --- 10 LONG SERIES from FRED (300+ real points, downloaded) ---
-    for series_id, name, freq, challenge, source in _FRED_DATASETS:
-        vals = _load_fred(series_id, max_points=600)
-        if len(vals) >= 300:
-            datasets.append(_ds(vals, name, freq, challenge, source))
+    # --- FRED SERIES (downloaded at import time) ---
+    for series_id, name, freq, challenge, max_pts in _FRED_DATASETS:
+        vals = _load_fred(series_id, max_points=max_pts)
+        if len(vals) >= 50:  # minimum viable length
+            datasets.append(_ds(vals, name, freq, challenge, f"FRED/{series_id}"))
 
-    # --- 10 SHORTER HARDCODED SERIES (diverse challenges) ---
+    # --- HARDCODED CLASSICS (diverse challenges, various lengths) ---
     datasets.extend([
-        _ds(_milk_production, "MilkProduction",    "monthly", "trend+additive_seasonality",       "Cryer & Chan"),
-        _ds(_gold_price,      "GoldPrice",         "monthly", "volatile_nonlinear_trend",         "London Bullion Market"),
-        _ds(_nile_min,        "NileMinLevel",      "annual",  "long_memory",                      "Toussoun 1925"),
+        # Monthly (100-180 pts)
         _ds(_air_passengers,  "AirPassengers",     "monthly", "trend+multiplicative_seasonality", "Box & Jenkins 1976"),
+        _ds(_milk_production, "MilkProduction",    "monthly", "trend+additive_seasonality",       "Cryer & Chan"),
         _ds(_co2,             "CO2",               "monthly", "strong_trend+seasonality",         "Keeling, Scripps"),
-        _ds(_global_temp,     "GlobalTemp",        "annual",  "long_memory_trend",                "NASA GISS"),
+        _ds(_wine_sales,      "WineSales",         "monthly", "trend+strong_seasonality",         "ABS"),
+        _ds(_nottem,          "Nottem",            "monthly", "pure_seasonality",                 "Anderson 1976"),
+        _ds(_gold_price,      "GoldPrice",         "monthly", "volatile_nonlinear_trend",         "London Bullion Market"),
         _ds(_intl_airline,    "IntlAirline",       "monthly", "strong_trend_seasonality",         "ICAO"),
+        _ds(_champagne,       "ChampagneSales",    "monthly", "explosive_trend_seasonality",      "Makridakis"),
+        # Quarterly (84-108 pts)
+        _ds(_johnson_johnson, "JohnsonJohnson",    "quarterly","exponential_trend+seasonality",   "Shumway & Stoffer"),
+        _ds(_cement_prod,     "CementProduction",  "quarterly","trend+seasonality",               "Portland Cement Assn"),
+        _ds(_uk_gas,          "UKGas",             "quarterly","growing_seasonality",             "Durbin & Koopman"),
+        # Annual (56-150 pts)
+        _ds(_nile_min,        "NileMinLevel",      "annual",  "long_memory",                      "Toussoun 1925"),
+        _ds(_global_temp,     "GlobalTemp",        "annual",  "long_memory_trend",                "NASA GISS"),
         _ds(_lynx,            "Lynx",              "annual",  "sharp_asymmetric_cycles",          "Elton & Nicholson 1942"),
         _ds(_nile,            "Nile",              "annual",  "level_shift",                      "Cobb 1978"),
         _ds(_sunspots,        "Sunspots",          "annual",  "quasi_periodic_nonstationary",     "SILSO"),
+        _ds(_discoveries,     "Discoveries",       "annual",  "intermittent_counts",              "R datasets"),
+        _ds(_lake_huron,      "LakeHuron",         "annual",  "slow_wandering_trend",             "Brockwell & Davis"),
+        _ds(_wheat_yield,     "WheatYield",        "annual",  "short_noisy_bounded",              "USDA NASS"),
+        _ds(_us_gdp_growth,   "USGDPGrowth",       "quarterly","noisy_stationary_with_shocks",    "BEA"),
+        _ds(_melb_temp,       "MelbourneTemp",     "monthly", "stable_seasonality",               "BoM Australia"),
+        _ds(_soi,             "SOI",               "monthly", "oscillatory_climate",              "BoM Australia"),
     ])
 
     return datasets
