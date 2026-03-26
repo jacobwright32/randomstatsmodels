@@ -189,6 +189,16 @@ model = AutoKoopman(speed="super_slow")   # ~2640 combos
 | slow | 46640.29 | 82929.84 | 29.64% | 40.49 | 51.34 | 18.34% | 0.20 | 99 |
 | super_slow | 48880.39 | 85178.97 | 29.65% | 40.49 | 51.34 | 19.27% | 0.70 | 97 |
 
+#### AutoFourier
+
+| Speed | Mean MAE | Mean RMSE | Mean sMAPE | Median MAE | Median RMSE | Median sMAPE | Median Fit (s) | OK |
+|-------|---------|----------|-----------|-----------|------------|-------------|---------------|-----|
+| super_fast | 56973.62 | 80744.33 | 36.51% | 57.76 | 68.20 | 22.85% | 0.04 | 100 |
+| fast | 51807.32 | 83105.96 | 35.91% | 57.76 | 70.78 | 25.32% | 0.08 | 100 |
+| normal | 49107.44 | 82548.25 | 36.48% | 57.76 | 70.78 | 22.27% | 0.42 | 100 |
+| slow | 47379.61 | 78767.00 | 38.15% | 67.92 | 85.39 | 24.42% | 0.60 | 100 |
+| super_slow | 48264.45 | 79597.11 | 36.16% | 58.70 | 76.04 | 21.99% | 1.57 | 100 |
+
 #### AutoPDEField
 
 | Speed | Mean MAE | Mean RMSE | Mean sMAPE | Median MAE | Median RMSE | Median sMAPE | Median Fit (s) | OK |
