@@ -439,14 +439,8 @@ class AutoMELD:
                                         ).fit(y_train)
                                     except Exception:
                                         continue
-                                    # One-step rolling over validation (use current true history, model fixed)
-                                    preds = []
-                                    y_so_far = y[:split].copy()
-                                    for t in range(split, N):
-                                        yhat = mdl._predict_one_from_series(y_so_far)
-                                        preds.append(yhat)
-                                        y_so_far = np.append(y_so_far, y[t])
-                                    preds = np.array(preds, dtype=float)
+                                    # Multi-step validation (single fit)
+                                    preds = mdl.predict(len(y_val))
                                     score = mae(y_val, preds) if self.metric == "mae" else rmse(y_val, preds)
 
                                     if score < best_score:

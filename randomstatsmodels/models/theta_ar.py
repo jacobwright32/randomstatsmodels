@@ -189,34 +189,37 @@ class AutoThetaAR:
         trend = self.a + self.b * t
         theta_line = self.theta * x + (1.0 - self.theta) * trend
 
-        # pick alpha by SSE of one-step SES errors
-        best_sse, best_alpha = np.inf, 0.2
-        for alpha in np.linspace(0.01, 1.0, 100):
+        # pick alpha by SSE — golden section search (O(20*n) vs O(100*n))
+        def _ses_sse(alpha):
             L = theta_line[0]
             sse = 0.0
             for j in range(1, n):
                 e = theta_line[j] - L
                 sse += e * e
                 L += alpha * e
-            if sse < best_sse:
-                best_sse, best_alpha = sse, alpha
-        self.alpha = best_alpha
+            return sse
 
-        # final level with best alpha
+        a_lo, a_hi = 0.01, 0.99
+        gr = (5 ** 0.5 - 1) / 2
+        c = a_hi - gr * (a_hi - a_lo)
+        d = a_lo + gr * (a_hi - a_lo)
+        for _ in range(25):
+            if _ses_sse(c) < _ses_sse(d):
+                a_hi = d
+            else:
+                a_lo = c
+            c = a_hi - gr * (a_hi - a_lo)
+            d = a_lo + gr * (a_hi - a_lo)
+        self.alpha = (a_lo + a_hi) / 2
+
+        # single pass: compute final level + residuals together (pre-allocated)
+        res = np.empty(n - 1, dtype=float)
         L = theta_line[0]
         for j in range(1, n):
             e = theta_line[j] - L
+            res[j - 1] = e
             L += self.alpha * e
         self.last_level = L
-
-        # residuals of SES and AR(1)
-        res = []
-        Lh = theta_line[0]
-        for j in range(1, n):
-            e = theta_line[j] - Lh
-            res.append(e)
-            Lh += self.alpha * e
-        res = np.asarray(res, dtype=float)
         if res.size >= 2:
             num = np.dot(res[1:], res[:-1])
             den = np.dot(res[:-1], res[:-1])

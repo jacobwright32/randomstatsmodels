@@ -201,28 +201,17 @@ class AutoFourier:
 
         for H in self.n_harmonics_grid:
             for trend in self.trend_options:
-                # Safety: ensure feasible with current train length
                 if len(y_train) < 3:
                     continue
                 try:
                     model = FourierForecaster(n_harmonics=H, trend=trend).fit(y_train)
+                    preds = model.predict(len(y_val))
+                    score = score_fn(y_val, preds)
+                    if score < best_score:
+                        best_score = score
+                        best_conf = {"n_harmonics": H, "trend": trend}
                 except Exception:
                     continue
-                preds = []
-                # Rolling one-step ahead through validation (refit each step or update?)
-                # For Fourier with fixed base length, we refit quickly each step on the growing data
-                # to keep frequencies aligned with current sample size.
-                for t in range(split, N):
-                    # Predict next value from current fit
-                    yhat = model.predict(1)[0]
-                    preds.append(yhat)
-                    # Update by refitting on data up to t (fast LS on small design)
-                    model = FourierForecaster(n_harmonics=H, trend=trend).fit(y[: t + 1])
-                preds = np.asarray(preds)
-                score = score_fn(y_val, preds)
-                if score < best_score:
-                    best_score = score
-                    best_conf = {"n_harmonics": H, "trend": trend}
 
         if best_conf is None:
             raise RuntimeError("AutoFourier failed to find a valid configuration.")

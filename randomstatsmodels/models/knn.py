@@ -252,28 +252,8 @@ class AutoKNN:
                 except Exception:
                     # Skip invalid configurations
                     continue
-                # Evaluate on validation set with one-step rolling forecasts
-                preds = []
-                # Start with the model as fitted on y_train, then update through val
-                for t in range(split, N):
-                    # Predict one step ahead from current model state
-                    # (We use the last L points from model.data to forecast next)
-                    yhat = model.predict(1)[0]
-                    preds.append(yhat)
-                    # Update model with the actual value at time t (y[t]) before next step
-                    model.data = np.append(model.data, y[t])
-                    # Also update the precomputed library with the new data point
-                    # (append new window ending at t to _X and its next value y[t] to _y_next if possible)
-                    # Note: When moving through validation, we only use one-step forecast then update,
-                    # so the library grows, but we won't use beyond one-step ahead at any time.
-                    if len(model.data) > model.window:
-                        new_window = model.data[-model.window - 1 : -1]  # the window ending at time t-1
-                        # Actually, since we've just appended y[t] (truth) to model.data,
-                        # the last 'window' points from model.data (excluding the just appended one)
-                        # form the window ending at t-1, and y[t] is the next value for that window.
-                        model._X = np.vstack([model._X, new_window])
-                        model._y_next = np.append(model._y_next, model.data[-1])
-                preds = np.array(preds)
+                # Multi-step validation (single fit)
+                preds = model.predict(len(y_val))
                 # Calculate error
                 score = mae(y_val, preds) if self.metric == "mae" else rmse(y_val, preds)
                 if score < best_score:

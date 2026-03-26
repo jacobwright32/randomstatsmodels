@@ -255,16 +255,8 @@ class AutoEnsemble:
                 # Fit on training data
                 model = ModelClass(**kwargs).fit(y_train)
 
-                # Rolling one-step forecast through validation
-                preds = []
-                current_data = y_train.copy()
-                for t in range(split, N):
-                    m = ModelClass(**kwargs).fit(current_data)
-                    yhat = m.predict(1)[0]
-                    preds.append(yhat)
-                    current_data = np.append(current_data, y[t])
-
-                preds = np.array(preds)
+                # Multi-step validation (single fit)
+                preds = model.predict(len(y_val))
                 score = score_fn(y_val, preds)
 
                 fitted_models.append((ModelClass, kwargs))

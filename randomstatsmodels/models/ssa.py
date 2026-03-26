@@ -293,19 +293,8 @@ class AutoSSA:
                 except Exception:
                     continue
 
-                # One-step rolling forecast
-                preds = []
-                current_data = y_train.copy()
-                for t in range(split, N):
-                    model = SSAForecaster(
-                        window_length=window_length,
-                        n_components=n_comp,
-                    ).fit(current_data)
-                    yhat = model.predict(1)[0]
-                    preds.append(yhat)
-                    current_data = np.append(current_data, y[t])
-
-                preds = np.array(preds)
+                # Multi-step validation (single fit, no rolling refit)
+                preds = model.predict(len(y_val))
                 score = score_fn(y_val, preds)
 
                 if score < best_score:
