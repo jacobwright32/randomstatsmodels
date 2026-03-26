@@ -159,6 +159,16 @@ model = AutoKoopman(speed="super_slow")   # ~2640 combos
 
 ### Per-Model Speed Benchmarks (100 real-world datasets)
 
+#### AutoKNN
+
+| Speed | Median MAE | Median RMSE | Median MAPE | Median sMAPE | Median Fit (s) | OK |
+|-------|-----------|------------|------------|-------------|---------------|-----|
+| super_fast | 37.34 | 43.61 | 16.99% | 17.88% | 0.01 | 100 |
+| fast | 40.02 | 48.08 | 17.39% | 18.00% | 0.04 | 100 |
+| normal | 39.12 | 47.55 | 17.49% | 17.76% | 0.12 | 100 |
+| slow | 40.49 | 51.34 | 18.31% | 18.34% | 0.38 | 99 |
+| super_slow | 40.49 | 51.34 | 17.59% | 19.27% | 1.26 | 97 |
+
 #### AutoNaive (0.01s baseline)
 
 #### AutoThetaAR

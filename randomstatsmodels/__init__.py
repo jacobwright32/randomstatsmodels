@@ -1,4 +1,4 @@
-__version__ = "4.0.1"
+__version__ = "4.0.2"
 
 from .benchmarking.benchmarking import benchmark_model, benchmark_models
 from .metrics import mae, mse, rmse, mape, smape
